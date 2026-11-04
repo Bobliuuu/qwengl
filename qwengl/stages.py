@@ -14,14 +14,17 @@ THRESH = (-6, -2, 2, 6)              # 4 thresholds -> 5 brightness levels per f
 
 
 @lru_cache(None)
-def vertex_kernel(i: int) -> Kernel:
-    """Vertex transform: screen coordinate i (0=x, 1=y, 2=depth) of all 8 cube corners.
-    in : R[i][0..2] as (+,-) lanes (6)        out: 8 lanes, centred value + 15 (saturating = viewport clamp)."""
-    L = Layer(6, 8)
-    for v in range(8):
+def vertex_kernel(verts: tuple, i: int) -> Kernel:
+    """Vertex transform: screen coordinate i (0=x, 1=y, 2=depth) of up to 16 mesh vertices.
+    in : [R[i][0..2] as (+,-) lanes (6), translation t_i as (+,-) (2)]
+    out: one lane per vertex = s . R[i] + t_i + 15   (saturating at 0 / 31 = the viewport clamp)."""
+    n = len(verts)
+    assert 1 <= n <= 16
+    L = Layer(8, n)
+    for v, sv in enumerate(verts):
         for j in range(3):
-            L.w(2 * j, v, SGN[v, j]).w(2 * j + 1, v, -SGN[v, j])
-        L.b(v, 15)
+            L.w(2 * j, v, sv[j]).w(2 * j + 1, v, -sv[j])
+        L.w(6, v, 1).w(7, v, -1).b(v, 15)
     return Kernel(f"vertex{i}", [L])
 
 
@@ -46,46 +49,50 @@ def clip_any_kernel() -> Kernel:
 
 
 @lru_cache(None)
-def shade_kernel(f: int) -> Kernel:
-    """Per-face flat shading + depth.  in: column k of R as (+,-) lanes (6).  out: [colour index 1..30, depth 2..12].
-    colour = 1 + 5 f + #{t in THRESH: light . n >= t}; depth = 7 + sigma * Rz   (smaller = nearer)."""
-    k, sg, _ = FACES[f]
-    L1, L2 = Layer(6, 10), Layer(10, 2)
+def shade_kernel(normal: tuple, anchor: tuple, material: int) -> Kernel:
+    """Per-triangle flat shading + depth.
+    in : [L'_k (+,-) x3 (6), Rz_j (+,-) x3 (6), tz (+,-) (2)]   with L' = R^T l  (the light in object space, a host uniform)
+    out: [colour 1 + 5 material + #{t : n . L' >= t}, depth 15 + Rz . anchor + tz]   (depth: smaller = nearer)."""
+    L1, L2 = Layer(14, 10), Layer(10, 2)
     for ti, t in enumerate(THRESH):
-        for i in range(3):
-            c = sg * LIGHT[i]
-            L1.w(2 * i, ti, c).w(2 * i + 1, ti, -c)               # P_t = relu(dot - t + 1)
-            L1.w(2 * i, 4 + ti, c).w(2 * i + 1, 4 + ti, -c)       # Q_t = relu(dot - t)
+        for k in range(3):
+            c = normal[k]
+            L1.w(2 * k, ti, c).w(2 * k + 1, ti, -c)
+            L1.w(2 * k, 4 + ti, c).w(2 * k + 1, 4 + ti, -c)
         L1.b(ti, -t + 1).b(4 + ti, -t)
-        L2.w(ti, 0, 1).w(4 + ti, 0, -1)                           # level = sum (P_t - Q_t)
-    L1.w(4, 8, sg).w(5, 8, -sg).b(8, 7)                           # zn = relu(7 + sigma*Rz)
-    L1.b(9, CONST)                                                # constant lane
-    base = 1 + 5 * f
+        L2.w(ti, 0, 1).w(4 + ti, 0, -1)
+    for j in range(3):
+        L1.w(6 + 2 * j, 8, anchor[j]).w(7 + 2 * j, 8, -anchor[j])
+    L1.w(12, 8, 1).w(13, 8, -1).b(8, 15)
+    L1.b(9, CONST)
+    base = 1 + 5 * material
     L2.w(9, 0, 1 if base >= CONST else 0).b(0, base - CONST if base >= CONST else base)
     L2.w(8, 1, 1)
-    return Kernel(f"shade{f}", [L1, L2])
+    return Kernel("shade", [L1, L2])
 
 
 @lru_cache(None)
-def eval_kernel(a: int, b: int, row: int, seg: int) -> Kernel:
-    """Edge function of directed cube edge a->b at 6 pixels (row, 6*seg .. 6*seg+5), then a x15 saturating step.
-        e(q) = (Ya - Yb) qx + (Xb - Xa) qy + m . (s_a x s_b)          (X, Y = vertex-kernel lanes, m = Rx x Ry)
-    in : [Xa Xb Ya Yb m0+ m0- m1+ m1- m2+ m2-] (10)
+def eval_kernel(sa: tuple, sb: tuple, row: int, seg: int, tx: int, ty: int) -> Kernel:
+    """Edge function of the directed mesh edge a->b at 6 pixels (row, 6*seg .. 6*seg+5), then a x15 saturating step.
+        e(q) = (Ya - Yb)(qx - tx) + (Xb - Xa)(qy - ty) + m . (s_a x s_b)      (X, Y = vertex-kernel lanes, m = Rx x Ry)
+    in : [Xa Xb Ya Yb  Xa Xb Ya Yb (copy, carries the translation)  m0+ m0- m1+ m1- m2+ m2-] (14)
     out: per pixel (v+, v-) = (min(31, 15*relu(e+1)), min(31, 15*relu(-e+1)))  ~ ([e >= 0], [e <= 0]) as 0/15/30/31."""
-    c = np.cross(SGN[a], SGN[b])
-    L1, L2 = Layer(10, 12), Layer(12, 12)
+    c = np.cross(np.array(sa), np.array(sb))
+    L1, L2 = Layer(14, 12), Layer(12, 12)
     qy = row - C0
     for p in range(GRP):
         qx = seg * GRP + p - C0
-        for s, o in ((1, 2 * p), (-1, 2 * p + 1)):
-            L1.w(2, o, s * qx).w(3, o, -s * qx)        # Ya, Yb
-            L1.w(1, o, s * qy).w(0, o, -s * qy)        # Xb, Xa
+        for sgn, o in ((1, 2 * p), (-1, 2 * p + 1)):
+            L1.w(2, o, sgn * qx).w(3, o, -sgn * qx)          # Ya, Yb
+            L1.w(1, o, sgn * qy).w(0, o, -sgn * qy)          # Xb, Xa
+            L1.w(6, o, -sgn * tx).w(7, o, sgn * tx)          # Ya', Yb'   (- tx * A)
+            L1.w(5, o, -sgn * ty).w(4, o, sgn * ty)          # Xb', Xa'   (- ty * B)
             for i in range(3):
-                L1.w(4 + 2 * i, o, s * c[i]).w(5 + 2 * i, o, -s * c[i])
+                L1.w(8 + 2 * i, o, sgn * c[i]).w(9 + 2 * i, o, -sgn * c[i])
             L1.b(o, 1)
     for o in range(12):
         L2.w(o, o, 15)
-    return Kernel(f"eval{a}{b}r{row}s{seg}", [L1, L2])
+    return Kernel("eval", [L1, L2])
 
 
 @lru_cache(None)

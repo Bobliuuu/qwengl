@@ -1,10 +1,12 @@
-"""Render a rotating cube.  Every frame is a full pass through the qwengl pipeline.
+"""Render the demo scene (a cube with an octahedron and a pyramid orbiting it: 3 glDrawElements calls into one depth buffer).
     python demo.py --backend numpy --frames 36 --out out/numpy
     QWEN_DIR=... python demo.py --backend qwen --frames 24 --out out/qwen   (every kernel runs inside Qwen3.5)
 Writes fb_XXX.npy per frame plus frames.jsonl (per-frame timing, kernel-run counts and, for qwen, model mismatches)."""
 import argparse, json, os, time
 import numpy as np
-from qwengl import NumpyBackend, quantise, render, rot_matrix
+from qwengl import NumpyBackend
+from qwengl.gl import GL
+from qwengl.scene import draw_scene
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--backend", default="numpy", choices=["numpy", "qwen"])
@@ -25,15 +27,15 @@ else:
     be = NumpyBackend()
 log = open(os.path.join(a.out, "frames.jsonl"), "a")
 for f in range(a.start, a.start + a.frames):
-    th = 2 * np.pi * f / total                          # one full turn over the loop
-    R = quantise(rot_matrix(0.55 + 0.35 * np.sin(th), th, 0.25 * np.cos(th)))
     before = dict(getattr(be, "stats", {}))
     t0 = time.time()
-    fr = render(be, R)
-    rec = dict(frame=f, seconds=round(time.time() - t0, 2), runs=fr.runs, dropped=len(fr.dropped), R=R.tolist())
+    gl = GL(be)                                          # a fresh GL context per frame: glClear + 3 glDrawElements
+    fb = draw_scene(gl, f, total)
+    rec = dict(frame=f, seconds=round(time.time() - t0, 2), runs=gl.runs, dropped=len(gl.dropped))
     if a.backend == "qwen":
         for k in ("unique_runs", "tokens", "positions", "mismatches"):
             rec[k] = be.stats[k] - before.get(k, 0)
-    np.save(os.path.join(a.out, f"fb_{f:03d}.npy"), fr.fb)
+    np.save(os.path.join(a.out, f"fb_{f:03d}.npy"), fb)
+    np.save(os.path.join(a.out, f"z_{f:03d}.npy"), gl.read_depth())
     log.write(json.dumps(rec) + "\n"); log.flush()
-    print(json.dumps({k: v for k, v in rec.items() if k != "R"}), flush=True)
+    print(json.dumps(rec), flush=True)

@@ -37,10 +37,10 @@ def rot_matrix(ax: float, ay: float, az: float) -> np.ndarray:
     return Rz @ Ry @ Rx
 
 
-def quantise(rot: np.ndarray) -> np.ndarray:
+def quantise(rot: np.ndarray, scale: int = SCALE) -> np.ndarray:
     """The model-view uniform: a 3x3 integer matrix (rows = screen x, y, depth)."""
-    R = np.rint(SCALE * rot).astype(np.int64)
-    assert np.abs(R).max() <= SCALE
+    R = np.rint(scale * rot).astype(np.int64)
+    assert np.abs(R).max() <= scale
     return R
 
 

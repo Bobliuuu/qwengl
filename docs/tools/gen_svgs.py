@@ -64,16 +64,16 @@ def palette():
 PAL = palette()
 
 # ============================================================ banner: the real cube, as SVG rects
-fb = np.load(DOCS + "/../out/qwen/fb_006.npy")
+fb = np.load(DOCS + "/../out/scene_qwen/fb_010.npy")
 W, H = 1200, 360
 s = t(40, 62, "qwengl", 46, "b") + t(40, 96, "a graphics pipeline computed by a language model", 19, "m")
-s += t(40, 132, "vertex transform · edge functions · coverage · depth test · framebuffer", 14, "m")
+s += t(40, 132, "glDrawElements · vertex transform · edge functions · coverage · depth test · framebuffer", 14, "m")
 s += t(40, 154, "as integer ReLU layers inside a stock Qwen3.5-0.8B", 14, "m")
-for i, (lab, col) in enumerate((("104,940 kernel runs", "teal"), ("31.2 M tokens", "violet"), ("0 mismatches", "amber"))):
+for i, (lab, col) in enumerate((("98,432 kernel runs", "teal"), ("38.8 M tokens", "violet"), ("0 mismatches", "amber"))):
     s += f'<rect x="{40 + i * 190}" y="190" width="176" height="46" rx="23" fill="var(--{col[0]}fill)" stroke="var(--{col})" stroke-width="2"/>'.replace("tfill", "tfill")
     s += t(40 + i * 190 + 88, 219, lab, 15, "b", "middle", f"var(--{col})")
 s += t(40, 280, "no shaders · no rasteriser code · the model's own tokens are the pixels", 15, "m")
-s += t(40, 306, "30×30 pixels · 5-bit colour · 36 frames · one A100", 13, "m")
+s += t(40, 306, "GL-style API · 3 draw calls per frame · 30×30 pixels · one A100", 13, "m")
 px = 9
 ox, oy = 760, 30
 s += f'<rect x="{ox - 14}" y="{oy - 14}" width="{30 * px + 28}" height="{30 * px + 28}" rx="16" fill="#0e1018" stroke="var(--line)" stroke-width="2"/>'
@@ -232,7 +232,7 @@ s += f'<rect x="30" y="90" width="560" height="340" rx="16" fill="var(--tfill)" 
 for i, l in enumerate(["vertex transform: 8 corners × (x, y, depth)", "guard-band clip flags", "edge functions, 6 pixels per run", "hard binarise + 3-edge AND, both windings", "depth test (Z − zn ≥ 1) and conditional write", "flat shading: 5 brightness levels × 6 hues", "every pixel, every depth value, every colour"]):
     s += t(60, 158 + i * 34, "✅  " + l, 14.5)
 s += f'<rect x="610" y="90" width="560" height="340" rx="16" fill="var(--afill)" stroke="var(--amber)" stroke-width="2"/>' + t(890, 122, "on the host  (no pixel arithmetic)", 17, "b", "middle", "var(--amber)")
-for i, l in enumerate(["quantise the rotation to a 3×3 int uniform", "its cross product m (like a GL normal matrix)", "bounding-box tile binning from vertex outputs", "gather / scatter of lanes between kernels", "clear values: Z = 31, colour = 0 · draw order", "skip raster ops the model reported as empty", "argmax + append (free-running mode)"]):
+for i, l in enumerate(["quantise the rotation to a 3×3 int uniform", "m = Rx × Ry and the object-space light Rᵀl", "bounding-box tile binning from vertex outputs", "gather / scatter of lanes between kernels", "clear values: Z = 31, colour = 0 · draw order", "skip raster ops the model reported as empty", "argmax + append (free-running mode)"]):
     s += t(640, 158 + i * 34, "🧰  " + l, 14.5)
 s += t(40, 456, "Also not done: polygon clipping (guard-band check only) · interpolated depth (flat per face) · buffers live in host-held tokens between kernels.", 13, "m")
 save("host-vs-model", s, W, H)
@@ -254,11 +254,31 @@ save("kernel-zoo", s, W, H)
 
 # ============================================================ results cards
 W, H = 1200, 300
-s = t(40, 40, "Measured: A100, Qwen3.5-0.8B, 36 frames", 22, "b")
-cards = [("104,940", "kernel runs", "27,880 unique"), ("31.2 M", "tokens through the model", "1.81 M predicted positions"), ("0", "mismatches", "model argmax vs integer oracle"), ("36 / 36", "frames pixel-identical", "to the numpy pipeline"), ("123 s", "one frame, free-running", "56,747 tokens, 0 mismatches")]
+s = t(40, 40, "Measured: A100, Qwen3.5-0.8B, 36-frame scene (3 draw calls per frame)", 22, "b")
+cards = [("98,432", "kernel runs", "34,628 unique"), ("38.8 M", "tokens through the model", "2.24 M predicted positions"), ("0", "mismatches", "model argmax vs integer oracle"), ("36 / 36", "frames pixel-identical", "colour and depth vs numpy"), ("219 s", "one frame, free-running", "83,725 tokens, 0 mismatches")]
 for i, (big, lab, sub) in enumerate(cards):
     x = 30 + i * 230
     col = ["teal", "violet", "amber", "teal", "rose"][i]
     s += box(x, 80, 214, 150, col, col[0] + "fill", big, [lab, sub], 22)
 s += t(40, 268, "teacher-forced on the 36 frames, true autoregressive generation on one full frame. Raw logs are in results/.", 13, "m")
 save("results", s, W, H)
+
+# ============================================================ GL-style API
+W, H = 1200, 560
+s = t(40, 40, "A GL-style API on top of the kernels", 22, "b") + t(40, 62, "Every call maps to host bookkeeping or to kernels that run inside Qwen3.5.", 13, "m")
+code = ["gl = GL(backend)", "gl.light((-1, -1, -2))               # glLight", "gl.clear()                          # glClear(COLOR | DEPTH)", "",
+        "gl.draw_elements(cube(),", "    rotation=rot_matrix(a, b, c),", "    translate=(0, 0, 0))            # glDrawElements", "gl.draw_elements(octahedron(1), ...)    # same depth buffer", "gl.draw_elements(pyramid(1), ...)", "",
+        "img = gl.read_pixels()              # glReadPixels"]
+s += f'<rect x="30" y="88" width="560" height="320" rx="14" fill="var(--panel)" stroke="var(--line)" stroke-width="2"/>'
+for i, l in enumerate(code):
+    s += t(50, 120 + i * 26, l, 13, "mono")
+rows = [("uniform: rotation, light", "host", "amber"), ("vertex transform", "kernel", "teal"), ("guard-band clip", "kernel", "teal"), ("edge setup + evaluation", "kernel", "teal"),
+        ("coverage (both windings)", "kernel", "teal"), ("depth test + write", "kernel", "teal"), ("flat shading, 5 levels", "kernel", "teal"), ("glReadPixels", "host", "amber")]
+for i, (nm, who, col) in enumerate(rows):
+    y = 88 + i * 40
+    s += f'<rect x="640" y="{y}" width="520" height="32" rx="9" fill="var(--{col[0]}fill)" stroke="var(--{col})" stroke-width="1.6"/>'
+    s += t(656, y + 21, nm, 13.5, "b") + t(1144, y + 21, "in Qwen" if who == "kernel" else "host", 12.5, "b", "end", f"var(--{col})")
+s += t(40, 446, "Supported:", 14, "b") + t(150, 446, "any triangle mesh with small-integer vertices · rotation + screen/depth translation · several draw calls with one depth buffer", 13, "m")
+s += t(40, 474, "Built in:", 14, "b") + t(150, 474, "cube, octahedron, tetrahedron, pyramid (or pass your own Mesh(vertices, triangles))", 13, "m")
+s += t(40, 502, "Not supported:", 14, "b", fill="var(--rose)") + t(150, 502, "perspective · shaders · textures · blending · dynamic meshes · polygon clipping · per-pixel depth interpolation", 13, "m")
+save("gl-api", s, W, H)

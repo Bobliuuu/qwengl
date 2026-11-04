@@ -17,10 +17,10 @@ def test_binet_cauchy():
 
 
 def test_all_kernels_fit_the_hardware():
-    for f in range(6): st.shade_kernel(f)
-    for i in range(3): st.vertex_kernel(i)
+    st.vertex_kernel(tuple(tuple(int(x) for x in v) for v in SGN), 0)
+    st.shade_kernel((0, 0, 1), (0, 0, 1), 5)
     for k in (st.clip_kernel(), st.clip_any_kernel(), st.cover_kernel(), st.rop1_kernel(), st.rop2_kernel()): pass
-    st.eval_kernel(0, 7, 3, 2)
+    st.eval_kernel(tuple(SGN[0]), tuple(SGN[7]), 3, 2, 4, -3)
 
 
 @pytest.mark.parametrize("ang", [(0, 0, 0), (0.4, 0.7, 0.1), (1.2, 2.5, 0.3), (3.0, 0.2, 2.2), (0.77, 5.1, 4.0)])

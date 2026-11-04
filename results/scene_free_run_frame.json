@@ -1,0 +1,1 @@
+{"free_run": true, "frame": 5, "wall_seconds": 218.7, "identical_framebuffer": true, "kernel_runs": {"vertex": 9, "clip": 26, "clip_any": 26, "shade": 26, "eval": 1062, "cover": 1062, "rop1": 306, "rop2": 306, "rop_skipped": 756}, "runs": 2823, "unique_runs": 1293, "tokens": 1449133, "positions": 83725, "mismatches": 0, "model_seconds": 216.3}
