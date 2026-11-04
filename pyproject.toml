@@ -3,6 +3,7 @@ name = "qwengl"
 version = "0.1.0"
 description = "A graphics pipeline computed by a language model: vertex transform, clipping, rasterisation, depth test and framebuffer as integer ReLU layers inside Qwen3.5"
 requires-python = ">=3.10"
+license = {text = "MIT"}
 dependencies = ["numpy", "pillow"]
 
 [project.optional-dependencies]
