@@ -25,7 +25,7 @@ class Frame:
     dropped: list = field(default_factory=list)
 
 
-def render(backend, R: np.ndarray) -> Frame:
+def render(backend, R: np.ndarray, trace: list | None = None) -> Frame:
     rows, cols, mm = uniform_lanes(R)
     counts = {}
 
@@ -71,12 +71,23 @@ def render(backend, R: np.ndarray) -> Frame:
             cov_items.append((st.cover_kernel(), np.array(x)))
             cov_meta.append((t, row, seg, p))
     cov_out = go("cover", cov_items)
+    if trace is not None:
+        edge_maps = {}
+        for g, (t, row, seg) in enumerate(ev_meta):
+            m = edge_maps.setdefault(t, np.zeros((3, S, S), dtype=np.int64))
+            for k in range(3):
+                for p in range(GRP):
+                    m[k, row, seg * GRP + p] = ev_out[3 * g + k][2 * p]
 
     # ---- raster ops: in triangle order (like a draw call sequence), depth test + framebuffer write -----
     Z = np.full((S, S), Z_CLEAR, dtype=np.int64)
     Cb = np.full((S, S), C_CLEAR, dtype=np.int64)
     by_tri = {}
+    skipped = 0
     for m, o in zip(cov_meta, cov_out):
+        if not o.any():                       # predication: the model reported no coverage for these 2 pixels, the
+            skipped += 1                      # raster-op would be a no-op (g = g1 = g2 = 0), so it is not launched
+            continue
         by_tri.setdefault(m[0], []).append((m, o))
     for t in tri_ok:
         items = by_tri.get(t, [])
@@ -93,4 +104,11 @@ def render(backend, R: np.ndarray) -> Frame:
         for ((_, row, seg, p), _), y in zip(items, out):
             i = seg * GRP + p
             Z[row, i], Cb[row, i], Z[row, i + 1], Cb[row, i + 1] = y
+        if trace is not None:
+            cov = np.zeros((S, S), dtype=np.int64)
+            for (_, row, seg, p), s2 in items:
+                i = seg * GRP + p
+                cov[row, i], cov[row, i + 1] = max(s2[0], s2[1]), max(s2[2], s2[3])
+            trace.append(dict(tri=t, face=TRIS[t][0], edges=edge_maps.get(t), cov=cov, fb=Cb.copy(), z=Z.copy()))
+    counts['rop_skipped'] = skipped
     return Frame(Cb, Z, V, counts, dropped)

@@ -17,12 +17,12 @@ import numpy as np
 class QwenBackend:
     name = "qwen"
 
-    def __init__(self, qwen_dir: str, device: str = "cuda", batch: int = 24, readout: str = "code", graph: bool = False):
+    def __init__(self, qwen_dir: str, device: str = "cuda", batch: int = 24, readout: str = "code", graph: bool = False, free_run: bool = False):
         import torch
         from qwentpu import circuit as C
         from qwentpu.merge import build_merged, instantiate
         from qwentpu.sequencer2 import ProgramMachine
-        self.torch, self.C, self.device, self.batch = torch, C, device, batch
+        self.torch, self.C, self.device, self.batch, self.free_run = torch, C, device, batch, free_run
         self.seq = ProgramMachine(2, 16, 5, 5).install()
         tc, sd, self.v0, lay, g = build_merged(qwen_dir, mute_qwen=False)
         self.model = instantiate(tc, sd, device)
@@ -44,6 +44,26 @@ class QwenBackend:
         xs = list(int(v) for v in x) + [0] * (n - 1 - len(x)) + [1]
         p[-n:] = [C.tok_act(s * n + i, xs[i]) for i in range(n)]
         return p
+
+    def _generate(self, prompts):
+        """True autoregressive run, host = argmax + append until every row emits HALT.  The expected continuation is NOT fed."""
+        torch, seq = self.torch, self.seq
+        from transformers import DynamicCache
+        past = DynamicCache(config=self.model.config)
+        ids = torch.tensor([[self.v0 + t for t in p] for p in prompts], device=self.device)
+        with torch.no_grad():
+            nxt = self.chip.tokens(ids, past)[:, -1]
+            outs = [nxt.cpu()]
+            for _ in range(4096):
+                if all(int(o[-1]) == seq.halt for o in [torch.stack(outs).T[b] for b in range(len(prompts))]): break
+                nxt = self.chip.tokens((nxt + self.v0)[:, None], past)[:, -1]
+                outs.append(nxt.cpu())
+        T = torch.stack(outs).T.numpy()
+        res = []
+        for row in T:
+            row = [int(t) for t in row]
+            res.append(row[: row.index(seq.halt) + 1])
+        return res
 
     def run_many(self, items):
         torch, seq = self.torch, self.seq
@@ -70,6 +90,22 @@ class QwenBackend:
                     p = self._prompt(k, x)
                     em = seq.expected(p)
                     seqs.append(p + em); exps.append(em + [seq.halt]); plens.append(len(p))
+                if self.free_run:
+                    t0 = time.time()
+                    gen = self._generate([s[:l] for s, l in zip(seqs, plens)])
+                    self.stats["seconds"] += time.time() - t0
+                    self.stats["tokens"] += sum(plens) + sum(len(g) for g in gen)
+                    for b, (key, idxs) in enumerate(chunk):
+                        k = items[idxs[0]][0]
+                        got = gen[b]
+                        self.stats["positions"] += len(got)
+                        self.stats["mismatches"] += int(got != exps[b])
+                        y = np.array(seq.program_logits(got[:-1], k.n_out), dtype=np.int64)
+                        self.stats["unique_runs"] += 1
+                        self.cache[key] = y
+                        for i in idxs:
+                            out[i] = y
+                    continue
                 ids = torch.tensor([[self.v0 + t for t in s] for s in seqs], device=self.device)
                 if self.device.startswith("cuda"): torch.cuda.synchronize()
                 t0 = time.time()
