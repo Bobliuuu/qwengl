@@ -62,7 +62,7 @@ All 12 triangles are drawn with no back-face culling, in a fixed order. The back
 - **Clipping is a guard-band check only.** No polygon clipping, no new vertices. The demo cube never triggers it.
 - **Depth is flat per face**, not interpolated: exact for a convex cube, not for general meshes.
 - **The framebuffer and depth buffer live in host-held tokens between kernels**, not in model state. Every value in them was produced by the model.
-- **The 36-frame run is teacher-forced.** Each program's expected continuation is fed and the model's argmax at every position is compared with it (0 mismatches). For a deterministic argmax this is what free-running generation emits. The numbers passed to the next stage are decoded from the model's predicted tokens. A true free-running mode (host does only `argmax; append`) is implemented: `run_qwen.py --free-run`.
+- **The 36-frame run is teacher-forced.** Each program's expected continuation is fed and the model's argmax at every position is compared with it (0 mismatches). For a deterministic argmax this is what free-running generation emits, and the numbers passed to the next stage are decoded from the model's predicted tokens. To close the gap, one full frame was also run **free-running** (`--free-run`, the host does only `argmax; append`, the expected tokens are never fed): 2,005 kernel runs (875 unique), 56,747 generated tokens, **0 mismatches, framebuffer identical to numpy**, 123 s. The 36-frame run predates the skip of empty raster ops described above.
 - **Only the TPU layers run.** Qwen's own muted layers are skipped, bit-identical per qwenTPU's tests.
 - 30x30 pixels, 5-bit colour, orthographic. It is a very small GPU.
 
