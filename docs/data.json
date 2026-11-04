@@ -1,0 +1,473 @@
+{
+ "pixel": [
+  7,
+  12
+ ],
+ "journey": [
+  {
+   "tri": 1,
+   "face": 0,
+   "edges_pos": [
+    0,
+    15,
+    15
+   ],
+   "edges_neg": [
+    31,
+    15,
+    15
+   ],
+   "cov": 31,
+   "zn": 10,
+   "cn": 3,
+   "z_before": 31,
+   "z_after": 10,
+   "c_before": 0,
+   "c_after": 3
+  },
+  {
+   "tri": 5,
+   "face": 2,
+   "edges_pos": [
+    0,
+    15,
+    15
+   ],
+   "edges_neg": [
+    31,
+    15,
+    15
+   ],
+   "cov": 31,
+   "zn": 4,
+   "cn": 15,
+   "z_before": 10,
+   "z_after": 4,
+   "c_before": 3,
+   "c_after": 15
+  },
+  {
+   "tri": 10,
+   "face": 5,
+   "edges_pos": [
+    15,
+    31,
+    15
+   ],
+   "edges_neg": [
+    15,
+    0,
+    15
+   ],
+   "cov": 31,
+   "zn": 10,
+   "cn": 27,
+   "z_before": 4,
+   "z_after": 4,
+   "c_before": 15,
+   "c_after": 15
+  },
+  {
+   "tri": 11,
+   "face": 5,
+   "edges_pos": [
+    15,
+    31,
+    15
+   ],
+   "edges_neg": [
+    15,
+    0,
+    15
+   ],
+   "cov": 31,
+   "zn": 10,
+   "cn": 27,
+   "z_before": 4,
+   "z_after": 4,
+   "c_before": 15,
+   "c_after": 15
+  }
+ ],
+ "angles": [
+  0.9,
+  0.55,
+  0.2
+ ],
+ "kernel_out": [
+  0,
+  31,
+  0,
+  0
+ ],
+ "kernel_in": [
+  0,
+  15,
+  15,
+  31,
+  15,
+  15,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0
+ ],
+ "prompt_len": 1056,
+ "n_cells": 1024,
+ "prompt_tail": [
+  [
+   "act",
+   "ACT row 30 = 0"
+  ],
+  [
+   "act",
+   "ACT row 31 = 0"
+  ],
+  [
+   "act",
+   "ACT row 0 = 0"
+  ],
+  [
+   "act",
+   "ACT row 1 = 15"
+  ],
+  [
+   "act",
+   "ACT row 2 = 15"
+  ],
+  [
+   "act",
+   "ACT row 3 = 31"
+  ],
+  [
+   "act",
+   "ACT row 4 = 15"
+  ],
+  [
+   "act",
+   "ACT row 5 = 15"
+  ],
+  [
+   "act",
+   "ACT row 6 = 0"
+  ],
+  [
+   "act",
+   "ACT row 7 = 0"
+  ],
+  [
+   "act",
+   "ACT row 8 = 0"
+  ],
+  [
+   "act",
+   "ACT row 9 = 0"
+  ],
+  [
+   "act",
+   "ACT row 10 = 0"
+  ],
+  [
+   "act",
+   "ACT row 11 = 0"
+  ],
+  [
+   "act",
+   "ACT row 12 = 0"
+  ],
+  [
+   "act",
+   "ACT row 13 = 0"
+  ],
+  [
+   "act",
+   "ACT row 14 = 0"
+  ],
+  [
+   "act",
+   "ACT row 15 = 1"
+  ]
+ ],
+ "prompt_head": [
+  [
+   "cell",
+   "W[0,0] = 15"
+  ],
+  [
+   "cell",
+   "W[0,1] = 0"
+  ],
+  [
+   "cell",
+   "W[0,2] = 0"
+  ],
+  [
+   "cell",
+   "W[0,3] = 0"
+  ]
+ ],
+ "emitted": [
+  [
+   "read",
+   "READ col 0"
+  ],
+  [
+   "act",
+   "ACT row 16 = 0"
+  ],
+  [
+   "read",
+   "READ col 1"
+  ],
+  [
+   "act",
+   "ACT row 17 = 31"
+  ],
+  [
+   "read",
+   "READ col 2"
+  ],
+  [
+   "act",
+   "ACT row 18 = 31"
+  ],
+  [
+   "read",
+   "READ col 3"
+  ],
+  [
+   "act",
+   "ACT row 19 = 31"
+  ],
+  [
+   "read",
+   "READ col 4"
+  ],
+  [
+   "act",
+   "ACT row 20 = 31"
+  ],
+  [
+   "read",
+   "READ col 5"
+  ],
+  [
+   "act",
+   "ACT row 21 = 31"
+  ],
+  [
+   "read",
+   "READ col 6"
+  ],
+  [
+   "act",
+   "ACT row 22 = 0"
+  ],
+  [
+   "read",
+   "READ col 7"
+  ],
+  [
+   "act",
+   "ACT row 23 = 0"
+  ],
+  [
+   "read",
+   "READ col 8"
+  ],
+  [
+   "act",
+   "ACT row 24 = 0"
+  ],
+  [
+   "read",
+   "READ col 9"
+  ],
+  [
+   "act",
+   "ACT row 25 = 0"
+  ],
+  [
+   "read",
+   "READ col 10"
+  ],
+  [
+   "act",
+   "ACT row 26 = 0"
+  ],
+  [
+   "read",
+   "READ col 11"
+  ],
+  [
+   "act",
+   "ACT row 27 = 0"
+  ],
+  [
+   "read",
+   "READ col 12"
+  ],
+  [
+   "act",
+   "ACT row 28 = 15"
+  ],
+  [
+   "read",
+   "READ col 13"
+  ],
+  [
+   "act",
+   "ACT row 29 = 0"
+  ],
+  [
+   "read",
+   "READ col 14"
+  ],
+  [
+   "act",
+   "ACT row 30 = 0"
+  ],
+  [
+   "read",
+   "READ col 15"
+  ],
+  [
+   "act",
+   "ACT row 31 = 1"
+  ],
+  [
+   "read",
+   "READ col 16"
+  ],
+  [
+   "out",
+   "OUT 0 = 0"
+  ],
+  [
+   "read",
+   "READ col 17"
+  ],
+  [
+   "out",
+   "OUT 1 = 31"
+  ],
+  [
+   "read",
+   "READ col 18"
+  ],
+  [
+   "out",
+   "OUT 2 = 0"
+  ],
+  [
+   "read",
+   "READ col 19"
+  ],
+  [
+   "out",
+   "OUT 3 = 0"
+  ],
+  [
+   "read",
+   "READ col 20"
+  ],
+  [
+   "out",
+   "OUT 4 = 0"
+  ],
+  [
+   "read",
+   "READ col 21"
+  ],
+  [
+   "out",
+   "OUT 5 = 0"
+  ],
+  [
+   "read",
+   "READ col 22"
+  ],
+  [
+   "out",
+   "OUT 6 = 0"
+  ],
+  [
+   "read",
+   "READ col 23"
+  ],
+  [
+   "out",
+   "OUT 7 = 0"
+  ],
+  [
+   "read",
+   "READ col 24"
+  ],
+  [
+   "out",
+   "OUT 8 = 0"
+  ],
+  [
+   "read",
+   "READ col 25"
+  ],
+  [
+   "out",
+   "OUT 9 = 0"
+  ],
+  [
+   "read",
+   "READ col 26"
+  ],
+  [
+   "out",
+   "OUT 10 = 0"
+  ],
+  [
+   "read",
+   "READ col 27"
+  ],
+  [
+   "out",
+   "OUT 11 = 0"
+  ],
+  [
+   "read",
+   "READ col 28"
+  ],
+  [
+   "out",
+   "OUT 12 = 0"
+  ],
+  [
+   "read",
+   "READ col 29"
+  ],
+  [
+   "out",
+   "OUT 13 = 0"
+  ],
+  [
+   "read",
+   "READ col 30"
+  ],
+  [
+   "out",
+   "OUT 14 = 0"
+  ],
+  [
+   "read",
+   "READ col 31"
+  ],
+  [
+   "out",
+   "OUT 15 = 0"
+  ],
+  [
+   "halt",
+   "HALT"
+  ]
+ ]
+}

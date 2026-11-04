@@ -72,12 +72,14 @@ def render(backend, R: np.ndarray, trace: list | None = None) -> Frame:
             cov_meta.append((t, row, seg, p))
     cov_out = go("cover", cov_items)
     if trace is not None:
-        edge_maps = {}
+        edge_maps, edge_neg = {}, {}
         for g, (t, row, seg) in enumerate(ev_meta):
             m = edge_maps.setdefault(t, np.zeros((3, S, S), dtype=np.int64))
+            mn = edge_neg.setdefault(t, np.zeros((3, S, S), dtype=np.int64))
             for k in range(3):
                 for p in range(GRP):
                     m[k, row, seg * GRP + p] = ev_out[3 * g + k][2 * p]
+                    mn[k, row, seg * GRP + p] = ev_out[3 * g + k][2 * p + 1]
 
     # ---- raster ops: in triangle order (like a draw call sequence), depth test + framebuffer write -----
     Z = np.full((S, S), Z_CLEAR, dtype=np.int64)
@@ -109,6 +111,6 @@ def render(backend, R: np.ndarray, trace: list | None = None) -> Frame:
             for (_, row, seg, p), s2 in items:
                 i = seg * GRP + p
                 cov[row, i], cov[row, i + 1] = max(s2[0], s2[1]), max(s2[2], s2[3])
-            trace.append(dict(tri=t, face=TRIS[t][0], edges=edge_maps.get(t), cov=cov, fb=Cb.copy(), z=Z.copy()))
+            trace.append(dict(tri=t, face=TRIS[t][0], edges=edge_maps.get(t), edges_neg=edge_neg.get(t), cov=cov, fb=Cb.copy(), z=Z.copy()))
     counts['rop_skipped'] = skipped
     return Frame(Cb, Z, V, counts, dropped)
