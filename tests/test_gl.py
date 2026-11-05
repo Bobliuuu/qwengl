@@ -52,3 +52,32 @@ def test_random_scenes():
         draws = [(meshes[rng.integers(4)], rot_matrix(*rng.uniform(0, 6.28, 3)), tuple(int(v) for v in rng.integers(-6, 7, 3) * [1, 1, 1])) for _ in range(2)]
         gl, Z, C = scene(draws)
         assert (gl.read_pixels() == C).all() and (gl.read_depth() == Z).all()
+
+
+def test_tiled_viewport_matches_native_window():
+    """GL(be, 60, 60) bins triangles to kernel windows; a mesh drawn there must equal the native 30x30 render, shifted."""
+    import numpy as np
+    from qwengl import NumpyBackend
+    from qwengl.gl import GL
+    from qwengl.geometry import rot_matrix
+    from qwengl.mesh import cube, octahedron
+    be = NumpyBackend()
+    for mesh, sc, off in ((cube(), 3, (0, 0)), (octahedron(2), 3, (7, -4))):
+        R = np.rint(sc * rot_matrix(0.4, 0.8, 0.2)).astype(np.int64)
+        small = GL(be); small.draw_elements(mesh, None, (0, 0, 0), R=R)
+        big = GL(be, 60, 60); big.draw_elements(mesh, None, (off[0], off[1], 0), R=R)
+        assert not big.dropped
+        a, b = small.read_pixels(), big.read_pixels()
+        # the native window has its origin at 15 - 15 = centre; the big framebuffer's centre is (30, 30)
+        sub = b[15 + off[1]: 45 + off[1], 15 + off[0]: 45 + off[0]]
+        assert (sub == a).all()
+
+
+def test_dungeon_scene_is_exact_and_complete():
+    import numpy as np
+    from qwengl import NumpyBackend, dungeon
+    from qwengl.gl import GL
+    be = NumpyBackend()
+    gl = GL(be, dungeon.W, dungeon.H)
+    fb = dungeon.draw_scene(gl, 5, 48)
+    assert fb.shape == (60, 60) and not gl.dropped and (fb > 0).sum() > 1200

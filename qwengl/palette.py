@@ -18,3 +18,21 @@ def palette() -> np.ndarray:
 def to_rgb(fb: np.ndarray, scale: int = 16) -> np.ndarray:
     img = palette()[fb]
     return np.kron(img, np.ones((scale, scale, 1), dtype=np.uint8))
+
+
+# dungeon scene: family f -> base colour, 5 brightness levels each (index 1 + 5 f + level), 0 = void
+DUNGEON = [(200, 176, 132), (92, 78, 70), (190, 78, 56), (122, 134, 160), (70, 170, 92), (246, 196, 72)]
+
+
+def dungeon_palette() -> np.ndarray:
+    p = np.zeros((32, 3), dtype=np.uint8)
+    p[0] = (10, 10, 16)
+    for f, base in enumerate(DUNGEON):
+        for lv in range(5):
+            k = 0.32 + 0.17 * lv
+            p[1 + 5 * f + lv] = np.minimum(255, np.array(base) * k * 1.0).astype(np.uint8)
+    return p
+
+
+def to_rgb_pal(fb: np.ndarray, pal: np.ndarray, scale: int = 16) -> np.ndarray:
+    return np.kron(pal[fb], np.ones((scale, scale, 1), dtype=np.uint8))

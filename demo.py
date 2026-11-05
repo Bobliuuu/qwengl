@@ -6,9 +6,10 @@ import argparse, json, os, time
 import numpy as np
 from qwengl import NumpyBackend
 from qwengl.gl import GL
-from qwengl.scene import draw_scene
+from qwengl import dungeon, scene
 
 ap = argparse.ArgumentParser()
+ap.add_argument("--scene", default="orbit", choices=["orbit", "dungeon"])
 ap.add_argument("--backend", default="numpy", choices=["numpy", "qwen"])
 ap.add_argument("--frames", type=int, default=36)
 ap.add_argument("--start", type=int, default=0, help="first frame index (for splitting a run across workers)")
@@ -29,8 +30,12 @@ log = open(os.path.join(a.out, "frames.jsonl"), "a")
 for f in range(a.start, a.start + a.frames):
     before = dict(getattr(be, "stats", {}))
     t0 = time.time()
-    gl = GL(be)                                          # a fresh GL context per frame: glClear + 3 glDrawElements
-    fb = draw_scene(gl, f, total)
+    if a.scene == "dungeon":
+        gl = GL(be, dungeon.W, dungeon.H)                # 60x60 tiled viewport: 9 kernel windows of 30x30
+        fb = dungeon.draw_scene(gl, f, total)
+    else:
+        gl = GL(be)                                      # a fresh GL context per frame: glClear + 3 glDrawElements
+        fb = scene.draw_scene(gl, f, total)
     rec = dict(frame=f, seconds=round(time.time() - t0, 2), runs=gl.runs, dropped=len(gl.dropped))
     if a.backend == "qwen":
         for k in ("unique_runs", "tokens", "positions", "mismatches"):

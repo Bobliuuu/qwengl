@@ -25,7 +25,7 @@ class Mesh:
         self.triangles = np.asarray(self.triangles, dtype=np.int64)
         m = len(self.triangles)
         self.material = np.broadcast_to(np.asarray(self.material, dtype=np.int64), (m,)).copy()
-        assert self.vertices.ndim == 2 and self.vertices.shape[1] == 3 and np.abs(self.vertices).max() <= 8
+        assert self.vertices.ndim == 2 and self.vertices.shape[1] == 3 and np.abs(self.vertices).max() <= 15
         assert self.material.min() >= 0 and self.material.max() <= 5, "6 colour families"
         center = self.vertices.mean(0)
         if self.normals is None:

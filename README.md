@@ -6,7 +6,7 @@
 No shaders. No rasteriser code. The model's own tokens are the pixels.</p>
 
 <p align="center">
-<a href="docs/qwengl_demo.mp4"><b>🎬 Watch it run</b></a> ·
+<a href="docs/qwengl_dungeon.mp4"><b>🎬 Watch it run</b></a> ·
 <a href="#-the-api"><b>🧑‍💻 The API</b></a> ·
 <a href="#-how-a-frame-is-drawn"><b>🖼️ How it works</b></a> ·
 <a href="#-life-of-a-pixel"><b>🔬 One pixel</b></a> ·
@@ -15,8 +15,11 @@ No shaders. No rasteriser code. The model's own tokens are the pixels.</p>
 <a href="#-run-it"><b>🚀 Run it</b></a>
 </p>
 
-<p align="center"><a href="docs/qwengl_demo.mp4"><img src="docs/qwengl_demo.gif" alt="a cube with an octahedron and a pyramid orbiting it, rendered inside Qwen3.5" width="420"></a><br>
-<sub>🧊🔺🔷 three <code>glDrawElements</code> calls into one depth buffer, 36 frames, 30×30 pixels. Every kernel ran inside Qwen3.5-0.8B on an A100 and matched an integer oracle token for token. <a href="docs/qwengl_demo.mp4">mp4</a></sub></p>
+<p align="center"><a href="docs/qwengl_dungeon.mp4"><img src="docs/qwengl_dungeon.gif" alt="a figure walking around a spinning gem in an isometric dungeon room, rendered inside Qwen3.5" width="480"></a><br>
+<sub>🏰🚶💎 a walker circling a spinning gem in a torch-lit room: 48 frames, <b>60×60</b> pixels, 7 <code>glDrawElements</code> calls per frame into one depth buffer. Every kernel ran inside Qwen3.5-0.8B on an A100: 812,548 kernel runs, 4.87 M predicted tokens, 0 mismatches, framebuffer and depth identical to an integer oracle. It is an isometric view, not first person: the pipeline has no perspective divide. <a href="docs/qwengl_dungeon.mp4">mp4</a></sub></p>
+
+<p align="center"><a href="docs/qwengl_demo.mp4"><img src="docs/qwengl_demo.gif" alt="a cube with an octahedron and a pyramid orbiting it" width="300"></a><br>
+<sub>🧊🔺🔷 the earlier 30×30 scene: cube, octahedron and pyramid, 3 draws, 36 frames, also run in the model. <a href="docs/qwengl_demo.mp4">mp4</a></sub></p>
 
 ---
 
@@ -124,6 +127,8 @@ No branch, no comparison instruction, no multiplier: a conditional move built fr
 
 <p align="center"><img src="docs/results.svg" alt="results" width="100%"></p>
 
+**60×60 dungeon (48 frames, 7 draws per frame, the static room is cached after frame 0):** 812,548 kernel runs (75,423 unique), 84.4 M tokens, 4,867,743 predicted positions, **0 mismatches**, 0 differing pixels in colour and depth vs numpy, 0 dropped triangles, 2,246 s on an A100 (`results/dungeon_qwen_48frames.jsonl`). Teacher-forced, like the 36-frame run below.
+
 | A100, Qwen3.5-0.8B, 30×30, 36-frame scene (3 draw calls per frame) | |
 |---|---|
 | kernel runs (one qwenTPU program each) | **98,432** (34,628 unique, identical runs cached) |
@@ -149,7 +154,7 @@ Logs are in [`results/`](results/). `pytest` checks the pipeline bit for bit aga
 - 🗃️ **The framebuffer and depth buffer live in host-held tokens between kernels**, not in model state. Every value in them was produced by the model.
 - 🔁 **The 36-frame run is teacher-forced.** Each program's expected continuation is fed and the model's argmax at every position is compared with it (0 mismatches). For a deterministic argmax this is what free-running generation emits, and the numbers passed to the next stage are decoded from the model's predicted tokens. To close the gap, one full frame was also run **free-running** (`--free-run`: the host does only `argmax; append`, expected tokens are never fed): 0 mismatches, framebuffer and depth identical to numpy.
 - ⚡ **Only the TPU layers run.** Qwen's own muted layers are skipped, bit-identical per qwenTPU's tests.
-- 🔬 30×30 pixels, 5-bit colour, orthographic. It is a very small GPU.
+- 🔬 5-bit colour, orthographic, flat shading. The native kernel window is 30×30 (5-bit coordinates). `GL(backend, 60, 60)` tiles the viewport: the host bins each triangle to a 30×30 window that contains it and re-centres the mesh on an integer vertex (`t' = t + R·o`, exact). Triangles wider than 12 px are dropped, so large meshes must be pre-subdivided. It is a very small GPU.
 
 ## 🚀 Run it
 

@@ -37,27 +37,39 @@ def lanes(v):
     return np.stack(split(np.asarray(v)), -1).reshape(-1)
 
 
+STRIDE = 16          # tiled viewports: kernel windows are S x S, placed every STRIDE pixels; a triangle must fit one window
+MAXTRI = S - 2 - STRIDE   # widest triangle (pixels) guaranteed to fit some window = 12
+
+
 class GL:
-    def __init__(self, backend):
+    """GL(backend) is the native 30x30 framebuffer.  GL(backend, 60, 60) tiles the viewport: every triangle is binned to a
+    30x30 kernel window that contains it, the mesh is re-centred on an integer vertex (exact: t' = t + R o) and drawn there."""
+
+    def __init__(self, backend, width: int = S, height: int = S):
         self.backend = backend
+        self.W, self.H = width, height
         self.runs: dict = {}
         self.dropped: list = []
         self._light = (-1, -1, -2)
+        self.nx = max(1, -(-(width - S) // STRIDE) + 1) if width > S else 1
+        self.ny = max(1, -(-(height - S) // STRIDE) + 1) if height > S else 1
         self.clear()
 
     # ---- state ------------------------------------------------------------------------------------------
     def clear(self):
-        self.Z = np.full((S, S), Z_CLEAR, dtype=np.int64)
-        self.C = np.full((S, S), C_CLEAR, dtype=np.int64)
+        pw, ph = (self.nx - 1) * STRIDE + S, (self.ny - 1) * STRIDE + S
+        self.ZF = np.full((ph, pw), Z_CLEAR, dtype=np.int64)
+        self.CF = np.full((ph, pw), C_CLEAR, dtype=np.int64)
+        self.Z, self.C = self.ZF[:S, :S], self.CF[:S, :S]
 
     def light(self, direction):
         self._light = tuple(int(v) for v in direction)
 
     def read_pixels(self):
-        return self.C.copy()
+        return self.CF[: self.H, : self.W].copy()
 
     def read_depth(self):
-        return self.Z.copy()
+        return self.ZF[: self.H, : self.W].copy()
 
     def _go(self, name, items):
         self.runs[name] = self.runs.get(name, 0) + len(items)
@@ -65,9 +77,44 @@ class GL:
 
     # ---- draw -------------------------------------------------------------------------------------------
     def draw_elements(self, mesh: Mesh, rotation: np.ndarray, translate=(0, 0, 0), trace: list | None = None, R=None, scale: int | None = None):
-        R = quantise(rotation, scale or mesh.scale) if R is None else np.asarray(R)
+        R = quantise(rotation, scale or mesh.scale) if R is None else np.asarray(R, dtype=np.int64)
+        if (self.W, self.H) == (S, S):
+            return self._draw_window(mesh, R, translate, trace)
+        assert trace is None, "trace is for the native 30x30 viewport"
+        return self._draw_tiled(mesh, R, translate)
+
+    def _draw_tiled(self, mesh: Mesh, R: np.ndarray, translate):
         tx, ty, tz = (int(v) for v in translate)
-        assert max(abs(tx), abs(ty)) <= 16, "screen translation must fit a 5-bit weight"
+        V = mesh.vertices
+        gx = V @ R[0] + tx + self.W // 2                               # exact integer screen coordinates (host bookkeeping)
+        gy = V @ R[1] + ty + self.H // 2
+        bins: dict = {}
+        for t, tri in enumerate(mesh.triangles):
+            x0, x1, y0, y1 = gx[tri].min(), gx[tri].max(), gy[tri].min(), gy[tri].max()
+            if x1 < 0 or y1 < 0 or x0 >= self.W or y0 >= self.H:
+                continue                                                # entirely off screen
+            i, j = min(int((x0 - 1) // STRIDE), self.nx - 1), min(int((y0 - 1) // STRIDE), self.ny - 1)
+            if x0 < 1 or y0 < 1 or x0 < i * STRIDE + 1 or y0 < j * STRIDE + 1 or x1 > i * STRIDE + S - 2 or y1 > j * STRIDE + S - 2:
+                self.dropped.append(t)                                  # wider than the guard band of every window
+                continue
+            bins.setdefault((i, j), []).append(t)
+        for (i, j), ts in sorted(bins.items()):
+            ox, oy = i * STRIDE, j * STRIDE
+            used = sorted({int(v) for t in ts for v in mesh.triangles[t]})
+            cx, cy = gx[used].mean(), gy[used].mean()
+            o_idx = min(used, key=lambda k: (gx[k] - cx) ** 2 + (gy[k] - cy) ** 2)     # re-centre on a real vertex of the group
+            o = V[o_idx]
+            remap = {v: n for n, v in enumerate(used)}
+            sub = Mesh(V[used] - o, [[remap[int(v)] for v in mesh.triangles[t]] for t in ts], mesh.material[ts],
+                       mesh.normals[ts], mesh.anchors[ts] - o, name=mesh.name)
+            t2 = (int(R[0] @ o) + tx + self.W // 2 - ox - 15, int(R[1] @ o) + ty + self.H // 2 - oy - 15, tz + int(R[2] @ o))
+            self.Z, self.C = self.ZF[oy: oy + S, ox: ox + S], self.CF[oy: oy + S, ox: ox + S]
+            self._draw_window(sub, R, t2, None)
+        self.Z, self.C = self.ZF[:S, :S], self.CF[:S, :S]
+
+    def _draw_window(self, mesh: Mesh, R: np.ndarray, translate, trace):
+        tx, ty, tz = (int(v) for v in translate)
+        assert max(abs(tx), abs(ty)) <= 16, f"screen translation must fit a 5-bit weight: {(tx, ty)}"
         m = minors(R)
         mm = lanes(m)
         Lobj = R.T @ np.array(self._light)                                   # light in object space (host uniform)
