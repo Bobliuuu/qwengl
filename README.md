@@ -15,6 +15,10 @@ No shaders. No rasteriser code. The model's own tokens are the pixels.</p>
 <a href="#-run-it"><b>🚀 Run it</b></a>
 </p>
 
+<p align="center">
+<video src="https://github.com/Bobliuuu/qwengl/raw/main/docs/qwengl_demo_video.mp4" controls muted loop playsinline width="720"></video><br>
+<sub>🎬 the 32 s demo video. If it does not play inline, <a href="docs/qwengl_demo_video.mp4">open the mp4</a>.</sub></p>
+
 <p align="center"><a href="docs/qwengl_dungeon.mp4"><img src="docs/qwengl_dungeon.gif" alt="a figure walking around a spinning gem in an isometric dungeon room, rendered inside Qwen3.5" width="480"></a><br>
 <sub>🏰🚶💎 a walker circling a spinning gem in a torch-lit room: 48 frames, <b>60×60</b> pixels, 7 <code>glDrawElements</code> calls per frame into one depth buffer. Every kernel ran inside Qwen3.5-0.8B on an A100: 812,548 kernel runs, 4.87 M predicted tokens, 0 mismatches, framebuffer and depth identical to an integer oracle. It is an isometric view, not first person: the pipeline has no perspective divide. <a href="docs/qwengl_dungeon.mp4">mp4</a></sub></p>
 
