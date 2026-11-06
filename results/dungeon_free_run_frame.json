@@ -1,0 +1,1 @@
+{"scene": "dungeon", "free_run": true, "frame": 12, "wall_seconds": 1510.6, "identical_framebuffer": true, "kernel_runs": {"vertex": 111, "clip": 232, "clip_any": 232, "shade": 232, "eval": 6174, "cover": 6174, "rop1": 2031, "rop2": 2031, "rop_skipped": 4143}, "runs": 17217, "unique_runs": 7350, "tokens": 8235862, "positions": 474262, "mismatches": 0, "model_seconds": 1496.9}

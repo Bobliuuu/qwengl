@@ -126,7 +126,7 @@ No branch, no comparison instruction, no multiplier: a conditional move built fr
 
 <p align="center"><img src="docs/results.svg" alt="results" width="100%"></p>
 
-**60×60 dungeon (48 frames, 7 draws per frame, the static room is cached after frame 0):** 812,548 kernel runs (75,423 unique), 84.4 M tokens, 4,867,743 predicted positions, **0 mismatches**, 0 differing pixels in colour and depth vs numpy, 0 dropped triangles, 2,246 s on an A100 (`results/dungeon_qwen_48frames.jsonl`). Teacher-forced, like the 36-frame run below.
+**60×60 dungeon (48 frames, 7 draws per frame, the static room is cached after frame 0):** 812,548 kernel runs (75,423 unique), 84.4 M tokens, 4,867,743 predicted positions, **0 mismatches**, 0 differing pixels in colour and depth vs numpy, 0 dropped triangles, 2,246 s on an A100 (`results/dungeon_qwen_48frames.jsonl`). Teacher-forced, like the 36-frame run below. One full dungeon frame (frame 12) was also run **free-running** (the host does only `argmax; append`): 17,217 kernel runs (7,350 unique), 8.24 M tokens, 474,262 predicted positions, **0 mismatches**, framebuffer and depth identical to numpy, 1,511 s (`results/dungeon_free_run_frame.json`).
 
 | A100, Qwen3.5-0.8B, 30×30, 36-frame scene (3 draw calls per frame) | |
 |---|---|
