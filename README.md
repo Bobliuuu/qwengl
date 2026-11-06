@@ -6,7 +6,7 @@
 No shaders. No rasteriser code. The model's own tokens are the pixels.</p>
 
 <p align="center">
-<a href="docs/qwengl_dungeon.mp4"><b>🎬 Watch it run</b></a> ·
+<a href="docs/qwengl_demo_video.mp4"><b>🎬 Demo video (32 s)</b></a> ·
 <a href="#-the-api"><b>🧑‍💻 The API</b></a> ·
 <a href="#-how-a-frame-is-drawn"><b>🖼️ How it works</b></a> ·
 <a href="#-life-of-a-pixel"><b>🔬 One pixel</b></a> ·
@@ -176,7 +176,7 @@ Regenerate the diagrams and animations from real kernel data:
 ```bash
 PYTHONPATH=.:/path/to/qwentpu python tools/collect_data.py   # docs/data.json (pixel journey, decoded tokens)
 python docs/tools/gen_svgs.py                                # all SVG diagrams
-PYTHONPATH=. python tools/gen_anim_dungeon.py && PYTHONPATH=. python tools/gen_anim.py && PYTHONPATH=. python tools/gen_anim2.py   # the last two also write cube_* extras and token_trace / life_of_a_pixel
+PYTHONPATH=. python tools/make_demo_video.py && PYTHONPATH=. python tools/gen_anim_dungeon.py && PYTHONPATH=. python tools/gen_anim.py && PYTHONPATH=. python tools/gen_anim2.py   # the last two also write cube_* extras and token_trace / life_of_a_pixel
 ```
 
 ## 🧰 Layout
