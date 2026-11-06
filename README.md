@@ -6,7 +6,7 @@
 No shaders. No rasteriser code. The model's own tokens are the pixels.</p>
 
 <p align="center">
-<a href="docs/qwengl_demo_video.mp4"><b>🎬 Demo video (32 s)</b></a> ·
+<a href="docs/qwengl_demo_video.mp4"><b>🎬 Demo video (36 s)</b></a> ·
 <a href="#-the-api"><b>🧑‍💻 The API</b></a> ·
 <a href="#-how-a-frame-is-drawn"><b>🖼️ How it works</b></a> ·
 <a href="#-life-of-a-pixel"><b>🔬 One pixel</b></a> ·
@@ -15,8 +15,8 @@ No shaders. No rasteriser code. The model's own tokens are the pixels.</p>
 <a href="#-run-it"><b>🚀 Run it</b></a>
 </p>
 
-<p align="center"><a href="docs/qwengl_demo_video.mp4"><img src="docs/qwengl_demo_video.gif" alt="32 s demo: the API, draw calls, kernel windows and the 48 frames Qwen produced" width="720"></a><br>
-<sub>🎬 the 32 s demo, as a GIF so it plays right here. Click for the <a href="docs/qwengl_demo_video.mp4">full-quality mp4</a>.</sub></p>
+<p align="center"><a href="docs/qwengl_demo_video.mp4"><img src="docs/qwengl_demo_video.gif" alt="36 s demo: the API, draw calls, kernel windows and the 48 frames Qwen produced" width="720"></a><br>
+<sub>🎬 the 36 s demo, as a GIF so it plays right here. Click for the <a href="docs/qwengl_demo_video.mp4">full-quality mp4</a>.</sub></p>
 
 <p align="center"><a href="docs/qwengl_dungeon.mp4"><img src="docs/qwengl_dungeon.gif" alt="a figure walking around a spinning gem in an isometric dungeon room, rendered inside Qwen3.5" width="480"></a><br>
 <sub>🏰🚶💎 a walker circling a spinning gem in a torch-lit room: 48 frames, <b>60×60</b> pixels, 7 <code>glDrawElements</code> calls per frame into one depth buffer. Every kernel ran inside Qwen3.5-0.8B on an A100: 812,548 kernel runs, 4.87 M predicted tokens, 0 mismatches, framebuffer and depth identical to an integer oracle. It is an isometric view, not first person: the pipeline has no perspective divide. <a href="docs/qwengl_dungeon.mp4">mp4</a></sub></p>
