@@ -61,7 +61,7 @@ for step, t in enumerate(tr):
         panel(cv, x0 + 3 * (S * SC + 24), 56, "framebuffer", up(fb, pal))
         d.text((24, H - 38), "depth test: write only where covered AND Z - zn >= 1  |  gated relu, no multiplier, no branch", font=F, fill=DIM)
         frames.append(cv)
-save(frames, "docs/anim/draw_calls.gif", 220)
+save(frames, "docs/anim/cube_draw_calls.gif", 220)
 
 # ---------------------------------------------------------------- 2. rotating cube: colour + depth buffer side by side
 frames = []

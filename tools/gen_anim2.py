@@ -77,7 +77,7 @@ for g in range(0, len(groups) + 1):
             d.text((S * SC + 52, 60), f"{len(groups)} runs -> this triangle's coverage", font=F, fill=TEAL)
         d.text((24, H - 26), f"triangle 5, face {t['face']}: three edge functions per group, then a hard AND", font=FS, fill=DIM)
         frames.append(cv)
-save(frames, "docs/anim/raster_sweep.gif", 110)
+save(frames, "docs/anim/cube_raster_sweep.gif", 110)
 
 # ------------------------------------------------------------------ 3. life of a pixel
 J = D["journey"]; W, H = 900, 400

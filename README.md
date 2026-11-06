@@ -34,8 +34,8 @@ Each stage is a tiny integer network, `y = clip(relu(x·W + b), 0, 31)`, with 5-
 | 🎨 | **flat shading**: 5 brightness levels × 6 hues from `light · normal`, computed in the model |
 | ✅ | **0 mismatches** over 2.2 M predicted tokens, and one full frame generated **free-running** |
 
-<p align="center"><img src="docs/anim/scene_depth.gif" alt="scene colour buffer next to its depth buffer" width="560"><br>
-<sub>🧊 colour buffer and depth buffer side by side. Bright = near.</sub></p>
+<p align="center"><img src="docs/anim/scene_depth.gif" alt="dungeon colour buffer next to its depth buffer" width="640"><br>
+<sub>🏰 colour buffer and depth buffer side by side, the 48 frames Qwen produced. Bright = near.</sub></p>
 
 ## 🧑‍💻 The API
 
@@ -88,10 +88,12 @@ A deeper stage is just two programs back to back.
 
 ## 🖼️ How a frame is drawn
 
-<sub>The next sections use the single-cube frame from the first demo; the scene runs the same kernels once per draw call.</sub>
+<p align="center"><img src="docs/anim/draw_calls.gif" alt="the dungeon frame built by 7 glDrawElements calls, colour and depth buffers" width="100%"></p>
+<p align="center"><sub>🎞️ one frame, one <code>glDrawElements</code> call at a time. The yellow flash is what the call changed. The depth buffer is shared, so the walker is correctly hidden by the pedestal.</sub></p>
 
-<p align="center"><img src="docs/anim/draw_calls.gif" alt="12 triangles drawn one by one with edge functions, coverage, depth buffer and framebuffer" width="100%"></p>
-<p align="center"><sub>🎞️ one frame, triangle by triangle. Left to right: the three edge-function outputs, their AND, the depth buffer, the framebuffer. All panels are real kernel outputs.</sub></p>
+The kernels are 30×30, so the 60×60 viewport is tiled. Each triangle is binned to a 30×30 window that contains it and the mesh is re-centred on an integer vertex (exact), so the same 5-bit kernels draw every window:
+
+<p align="center"><img src="docs/anim/tiles.gif" alt="the viewport tiled with 30x30 kernel windows, drawn window by window" width="100%"></p>
 
 <p align="center"><img src="docs/kernel-zoo.svg" alt="kernel zoo" width="100%"></p>
 
@@ -100,9 +102,6 @@ A deeper stage is just two programs back to back.
 <p align="center"><img src="docs/edge-function.svg" alt="edge function math" width="100%"></p>
 
 The pixel position is the **weight**, the vertex data is the **activation**. The product `Xa·Yb − Xb·Ya` that triangle setup needs is rewritten as a dot with a 3-integer uniform (Binet–Cauchy), so setup costs no multiplier.
-
-<p align="center"><img src="docs/anim/raster_sweep.gif" alt="rasteriser sweeping 6-pixel groups" width="640"><br>
-<sub>🎞️ one triangle, 6 pixels per kernel run, 27 runs. Three edge functions, then a hard AND.</sub></p>
 
 ### 🪜 Why a ReLU network can draw a hard edge
 
@@ -177,7 +176,7 @@ Regenerate the diagrams and animations from real kernel data:
 ```bash
 PYTHONPATH=.:/path/to/qwentpu python tools/collect_data.py   # docs/data.json (pixel journey, decoded tokens)
 python docs/tools/gen_svgs.py                                # all SVG diagrams
-PYTHONPATH=. python tools/gen_anim.py && PYTHONPATH=. python tools/gen_anim2.py
+PYTHONPATH=. python tools/gen_anim_dungeon.py && PYTHONPATH=. python tools/gen_anim.py && PYTHONPATH=. python tools/gen_anim2.py   # the last two also write cube_* extras and token_trace / life_of_a_pixel
 ```
 
 ## 🧰 Layout

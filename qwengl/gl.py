@@ -50,6 +50,7 @@ class GL:
         self.W, self.H = width, height
         self.runs: dict = {}
         self.dropped: list = []
+        self.on_window = None            # optional callback(gl, ox, oy, n_triangles) after every kernel-window draw (animations)
         self._light = (-1, -1, -2)
         self.nx = max(1, -(-(width - S) // STRIDE) + 1) if width > S else 1
         self.ny = max(1, -(-(height - S) // STRIDE) + 1) if height > S else 1
@@ -110,6 +111,8 @@ class GL:
             t2 = (int(R[0] @ o) + tx + self.W // 2 - ox - 15, int(R[1] @ o) + ty + self.H // 2 - oy - 15, tz + int(R[2] @ o))
             self.Z, self.C = self.ZF[oy: oy + S, ox: ox + S], self.CF[oy: oy + S, ox: ox + S]
             self._draw_window(sub, R, t2, None)
+            if self.on_window:
+                self.on_window(self, ox, oy, len(ts))
         self.Z, self.C = self.ZF[:S, :S], self.CF[:S, :S]
 
     def _draw_window(self, mesh: Mesh, R: np.ndarray, translate, trace):
