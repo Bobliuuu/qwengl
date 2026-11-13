@@ -20,6 +20,8 @@ badges:
   - {label: model, message: "Qwen3.5-0.8B", color: 7e57c2}
   - {label: chip, message: qwenTPU, color: 7e57c2, link: "https://github.com/Bobliuuu/qwentpu"}
   - {label: license, message: MIT, color: f2c14e, link: LICENSE}
+  - {label: release, message: v0.1.0, color: 27c8e8, logo: github, link: "https://github.com/Bobliuuu/qwengl/releases/tag/v0.1.0"}
+  - {label: "Hugging Face", message: "run logs", color: ffd21e, logo: huggingface, link: "https://huggingface.co/datasets/Bobliu/qwengl"}
 nav:
   - {emoji: "🎬", label: Video, anchor: video}
   - {emoji: "📊", label: At a glance, anchor: results-at-a-glance}

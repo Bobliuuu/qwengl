@@ -6,13 +6,17 @@
 
 **A GL-style graphics library that runs inside a language model: the model's own tokens are the pixels**
 
-![mismatches: 0](https://img.shields.io/badge/mismatches-0-3ddc97) ![frames rendered in the model: 120](https://img.shields.io/badge/frames%20rendered%20in%20the%20model-120-27c8e8) ![tokens through the model: 154.4 M](https://img.shields.io/badge/tokens%20through%20the%20model-154.4%20M-27c8e8) ![model: Qwen3.5-0.8B](https://img.shields.io/badge/model-Qwen3.5--0.8B-7e57c2) [![chip: qwenTPU](https://img.shields.io/badge/chip-qwenTPU-7e57c2)](https://github.com/Bobliuuu/qwentpu) [![license: MIT](https://img.shields.io/badge/license-MIT-f2c14e)](LICENSE)
+![mismatches: 0](https://img.shields.io/badge/mismatches-0-3ddc97) ![frames rendered in the model: 120](https://img.shields.io/badge/frames%20rendered%20in%20the%20model-120-27c8e8) ![tokens through the model: 154.4 M](https://img.shields.io/badge/tokens%20through%20the%20model-154.4%20M-27c8e8) ![model: Qwen3.5-0.8B](https://img.shields.io/badge/model-Qwen3.5--0.8B-7e57c2) [![chip: qwenTPU](https://img.shields.io/badge/chip-qwenTPU-7e57c2)](https://github.com/Bobliuuu/qwentpu) [![license: MIT](https://img.shields.io/badge/license-MIT-f2c14e)](LICENSE) [![release: v0.1.0](https://img.shields.io/badge/release-v0.1.0-27c8e8?logo=github&logoColor=white)](https://github.com/Bobliuuu/qwengl/releases/tag/v0.1.0) [![Hugging Face: run logs](https://img.shields.io/badge/Hugging%20Face-run%20logs-ffd21e?logo=huggingface&logoColor=white)](https://huggingface.co/datasets/Bobliu/qwengl)
 
 [🎬 Video](#video) · [📊 At a glance](#results-at-a-glance) · [🧑‍💻 API](#the-api) · [🏗️ Architecture](#architecture) · [🖼️ A frame](#how-a-frame-is-drawn) · [📊 Measured](#measured) · [⚠️ Limits](#what-is-not-in-the-model) · [🚀 Run it](#run-it)
 
 </div>
 
 ---
+
+**Explainer video (voice-over and subtitles): a GL-style API whose every pixel is a token Qwen3.5 emitted**
+
+[![Explainer video preview (click for the mp4)](video/preview.gif)](video/qwengl_explainer.mp4)
 
 <p align="center"><a href="docs/qwengl_demo_video.mp4"><img src="docs/qwengl_demo_video.gif" alt="36 s demo: the API, draw calls, kernel windows and the 48 frames Qwen produced" width="720"></a><br>
 <sub>🎬 the 36 s demo, as a GIF so it plays right here. Click for the <a href="docs/qwengl_demo_video.mp4">full-quality mp4</a>.</sub></p>
