@@ -1,19 +1,18 @@
-<p align="center"><img src="docs/banner.svg" alt="qwengl: a graphics pipeline computed by a language model" width="100%"></p>
+<div align="center">
 
-<h1 align="center">qwengl 🎮🧠</h1>
-<p align="center"><b>A GL-style graphics library that runs inside a language model.</b><br>
-<code>glClear</code> · <code>glLight</code> · <code>glDrawElements</code> · <code>glReadPixels</code>, with vertex transform, edge functions, coverage, depth test and framebuffer computed as integer ReLU layers in a stock Qwen3.5-0.8B.<br>
-No shaders. No rasteriser code. The model's own tokens are the pixels.</p>
+<img src="assets/hero.svg" alt="qwengl" width="100%">
 
-<p align="center">
-<a href="docs/qwengl_demo_video.mp4"><b>🎬 Demo video (36 s)</b></a> ·
-<a href="#-the-api"><b>🧑‍💻 The API</b></a> ·
-<a href="#-how-a-frame-is-drawn"><b>🖼️ How it works</b></a> ·
-<a href="#-life-of-a-pixel"><b>🔬 One pixel</b></a> ·
-<a href="#-measured"><b>📊 Numbers</b></a> ·
-<a href="#-what-is-not-in-the-model"><b>⚠️ Honest limits</b></a> ·
-<a href="#-run-it"><b>🚀 Run it</b></a>
-</p>
+# 🎮 qwengl
+
+**A GL-style graphics library that runs inside a language model: the model's own tokens are the pixels**
+
+![mismatches: 0](https://img.shields.io/badge/mismatches-0-3ddc97) ![frames rendered in the model: 120](https://img.shields.io/badge/frames%20rendered%20in%20the%20model-120-27c8e8) ![tokens through the model: 154.4 M](https://img.shields.io/badge/tokens%20through%20the%20model-154.4%20M-27c8e8) ![model: Qwen3.5-0.8B](https://img.shields.io/badge/model-Qwen3.5--0.8B-7e57c2) [![chip: qwenTPU](https://img.shields.io/badge/chip-qwenTPU-7e57c2)](https://github.com/Bobliuuu/qwentpu) [![license: MIT](https://img.shields.io/badge/license-MIT-f2c14e)](LICENSE)
+
+[🎬 Video](#video) · [📊 At a glance](#results-at-a-glance) · [🧑‍💻 API](#the-api) · [🏗️ Architecture](#architecture) · [🖼️ A frame](#how-a-frame-is-drawn) · [📊 Measured](#measured) · [⚠️ Limits](#what-is-not-in-the-model) · [🚀 Run it](#run-it)
+
+</div>
+
+---
 
 <p align="center"><a href="docs/qwengl_demo_video.mp4"><img src="docs/qwengl_demo_video.gif" alt="36 s demo: the API, draw calls, kernel windows and the 48 frames Qwen produced" width="720"></a><br>
 <sub>🎬 the 36 s demo, as a GIF so it plays right here. Click for the <a href="docs/qwengl_demo_video.mp4">full-quality mp4</a>.</sub></p>
@@ -39,6 +38,48 @@ Each stage is a tiny integer network, `y = clip(relu(x·W + b), 0, 31)`, with 5-
 
 <p align="center"><img src="docs/anim/scene_depth.gif" alt="dungeon colour buffer next to its depth buffer" width="640"><br>
 <sub>🏰 colour buffer and depth buffer side by side, the 48 frames Qwen produced. Bright = near.</sub></p>
+
+<a id="results-at-a-glance"></a>
+
+## 📊 Results at a glance
+
+Measured on Qwen3.5-0.8B (A100), from the committed per-frame logs in `results/`.
+
+| Mismatches | Frames | Tokens through the model | Kernel runs |
+|:---:|:---:|:---:|:---:|
+| **0** | **120** | **154.4 M** | **1,015,920** |
+
+**Qwen3.5-0.8B on an A100: full scene runs (teacher-forced, argmax compared at every position)**
+
+| Scene | Frames | Kernel runs | Tokens | Predicted positions | Mismatches | Minutes |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Cube, 30x30 | 36 | 104,940 | 31,223,296 | 1,809,896 | 0 | 13.5 |
+| Cube + octahedron + pyramid, 30x30 | 36 | 98,432 | 38,775,104 | 2,242,564 | 0 | 16.9 |
+| Dungeon, 60x60 | 48 | 812,548 | 84,439,008 | 4,867,743 | 0 | 37.4 |
+
+<sub>Source: `results/derived/readme_data.json`</sub>
+
+**One frame per scene, free-running (host does only argmax; append)**
+
+| Scene | Frame | Kernel runs | Unique | Tokens | Mismatches | Identical to numpy | Seconds |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Cube, 30x30 | - | 2,005 | 875 | 980,747 | 0 | True | 123 |
+| Cube + octahedron + pyramid, 30x30 | 5 | 2,823 | 1,293 | 1,449,133 | 0 | True | 219 |
+| Dungeon, 60x60 | 12 | 17,217 | 7,350 | 8,235,862 | 0 | True | 1,511 |
+
+<sub>Source: `results/derived/readme_data.json`</sub>
+
+<p align="center"><img src="assets/scene_tokens.svg" alt="Tokens through Qwen3.5-0.8B per scene (millions), all with 0 mismatches" width="100%"></p>
+
+<p align="center"><img src="assets/dungeon_frame_s.svg" alt="Dungeon: model time per frame (s)" width="100%"></p>
+
+<p align="center"><img src="assets/runs_min.svg" alt="A100 wall time per scene (minutes)" width="100%"></p>
+
+<p align="center"><img src="assets/flow.svg" alt="One draw call through the qwengl pipeline" width="100%"></p>
+
+<p align="center"><img src="video/preview.gif" alt="animated overview of the explainer video" width="70%"></p>
+
+<a id="the-api"></a>
 
 ## 🧑‍💻 The API
 
@@ -68,6 +109,8 @@ Bring your own mesh: `Mesh(vertices, triangles, material=0..5)` with small-integ
 | back faces drawn and resolved by the depth test | dynamic or large meshes, polygon clipping |
 | built-in cube, octahedron, tetrahedron, pyramid | per-pixel depth interpolation (depth is flat per triangle) |
 
+<a id="architecture"></a>
+
 ## 🏗️ Architecture
 
 One **kernel** is one **prompt**. The kernel's weights are 1,024 `CELL` tokens, its input is 16 `ACT` tokens, and the model emits the rest.
@@ -88,6 +131,8 @@ A deeper stage is just two programs back to back.
 <p align="center"><img src="docs/token-timeline.svg" alt="token timeline" width="100%"></p>
 <p align="center"><img src="docs/anim/token_trace.gif" alt="the model emitting tokens" width="640"><br>
 <sub>🎞️ real decoded tokens from a real coverage run. The host fed the 1,056 prompt tokens, the model picked the other 65.</sub></p>
+
+<a id="how-a-frame-is-drawn"></a>
 
 ## 🖼️ How a frame is drawn
 
@@ -112,6 +157,8 @@ Weights are 5-bit, so one layer multiplies by at most 15. Two such layers satura
 
 <p align="center"><img src="docs/anim/hard_edge.gif" alt="relu stack turning a ramp into a step" width="640"></p>
 
+<a id="life-of-a-pixel"></a>
+
 ## 🔬 Life of a pixel
 
 Pixel (12, 7) of the demo frame is covered by **four** triangles. The first two win the depth test, the last two are rejected.
@@ -124,6 +171,8 @@ Pixel (12, 7) of the demo frame is covered by **four** triangles. The first two 
 <p align="center"><img src="docs/depth-test.svg" alt="depth test circuit" width="100%"></p>
 
 No branch, no comparison instruction, no multiplier: a conditional move built from saturating adds.
+
+<a id="measured"></a>
 
 ## 📊 Measured
 
@@ -143,6 +192,8 @@ No branch, no comparison instruction, no multiplier: a conditional move built fr
 
 Logs are in [`results/`](results/). `pytest` checks the pipeline bit for bit against an independent integer software rasteriser on every built-in mesh, with translation, several draw calls, occlusion and random scenes.
 
+<a id="what-is-not-in-the-model"></a>
+
 ## ⚠️ What is not in the model
 
 <p align="center"><img src="docs/host-vs-model.svg" alt="what runs where" width="100%"></p>
@@ -157,6 +208,8 @@ Logs are in [`results/`](results/). `pytest` checks the pipeline bit for bit aga
 - 🔁 **The 36-frame run is teacher-forced.** Each program's expected continuation is fed and the model's argmax at every position is compared with it (0 mismatches). For a deterministic argmax this is what free-running generation emits, and the numbers passed to the next stage are decoded from the model's predicted tokens. To close the gap, one full frame was also run **free-running** (`--free-run`: the host does only `argmax; append`, expected tokens are never fed): 0 mismatches, framebuffer and depth identical to numpy.
 - ⚡ **Only the TPU layers run.** Qwen's own muted layers are skipped, bit-identical per qwenTPU's tests.
 - 🔬 5-bit colour, orthographic, flat shading. The native kernel window is 30×30 (5-bit coordinates). `GL(backend, 60, 60)` tiles the viewport: the host bins each triangle to a 30×30 window that contains it and re-centres the mesh on an integer vertex (`t' = t + R·o`, exact). Triangles wider than 12 px are dropped, so large meshes must be pre-subdivided. It is a very small GPU.
+
+<a id="run-it"></a>
 
 ## 🚀 Run it
 
@@ -182,6 +235,8 @@ python docs/tools/gen_svgs.py                                # all SVG diagrams
 PYTHONPATH=. python tools/make_demo_video.py && PYTHONPATH=. python tools/gen_anim_dungeon.py && PYTHONPATH=. python tools/gen_anim.py && PYTHONPATH=. python tools/gen_anim2.py   # the last two also write cube_* extras and token_trace / life_of_a_pixel
 ```
 
+<a id="layout"></a>
+
 ## 🧰 Layout
 
 | path | what |
@@ -195,6 +250,12 @@ PYTHONPATH=. python tools/make_demo_video.py && PYTHONPATH=. python tools/gen_an
 | `qwengl/qwen_backend.py` | runs kernels in a real Qwen3.5 (teacher-forced or free-running) |
 | `tools/`, `docs/tools/` | generators for every animation and diagram, driven by real kernel outputs |
 
+<a id="credits"></a>
+
 ## 🙏 Credits
 
 Built on [**qwenTPU**](https://github.com/Bobliuuu/qwentpu) and **Qwen3.5**. Design vocabulary from Qwenputer, QwenPU and TinyTPU. MIT licensed.
+
+---
+
+<div align="center"><sub>Generated with video-readme-maker from README.spec.yml and results/.</sub></div>

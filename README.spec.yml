@@ -1,0 +1,236 @@
+# Spec for ~/video-readme-maker:  python3 ~/video-readme-maker/vrm.py all README.spec.yml
+# Numbers come from results/derived/readme_data.json, built by tools/readme_data.py from results/*_qwen_*frames.jsonl and results/*_free_run_frame.json.
+# Long technical sections are verbatim markdown in docs/readme/*.md (body_file).
+project:
+  name: qwengl
+  emoji: "🎮"
+  tagline: "A GL-style graphics library that runs inside a language model: the model's own tokens are the pixels"
+  repo: Bobliuuu/qwengl
+hero:
+  title: qwengl
+  subtitle: "glClear, glLight, glDrawElements, glReadPixels, computed as integer ReLU layers in Qwen3.5-0.8B"
+  chips: [GL-style API, ReLU rasteriser, depth buffer, stock Qwen3.5-0.8B]
+theme: {accent: "#27c8e8", accent2: "#ff6b6b", accent3: "#f2c14e", good: "#3ddc97"}
+readme_out: README.md
+assets_dir: assets
+badges:
+  - {label: mismatches, message: "{{ n.mismatches.text }}", color: 3ddc97}
+  - {label: "frames rendered in the model", message: "{{ n.frames.text }}", color: 27c8e8}
+  - {label: "tokens through the model", message: "{{ n.tokens_m.text }}", color: 27c8e8}
+  - {label: model, message: "Qwen3.5-0.8B", color: 7e57c2}
+  - {label: chip, message: qwenTPU, color: 7e57c2, link: "https://github.com/Bobliuuu/qwentpu"}
+  - {label: license, message: MIT, color: f2c14e, link: LICENSE}
+nav:
+  - {emoji: "🎬", label: Video, anchor: video}
+  - {emoji: "📊", label: At a glance, anchor: results-at-a-glance}
+  - {emoji: "🧑‍💻", label: API, anchor: the-api}
+  - {emoji: "🏗️", label: Architecture, anchor: architecture}
+  - {emoji: "🖼️", label: A frame, anchor: how-a-frame-is-drawn}
+  - {emoji: "📊", label: Measured, anchor: measured}
+  - {emoji: "⚠️", label: Limits, anchor: what-is-not-in-the-model}
+  - {emoji: "🚀", label: Run it, anchor: run-it}
+
+numbers:
+  mismatches: {file: results/derived/readme_data.json, path: totals.mismatches}
+  frames: {file: results/derived/readme_data.json, path: totals.frames}
+  tokens_m: {file: results/derived/readme_data.json, path: totals.tokens_m, fmt: "{:.1f}", unit: " M"}
+  kernel_runs_total: {file: results/derived/readme_data.json, path: totals.kernel_runs, fmt: "{:,.0f}"}
+  free_ok: {file: results/derived/readme_data.json, path: totals.free_frames_identical}
+  d_runs: {file: results/derived/readme_data.json, path: "runs.key=dungeon.kernel_runs", fmt: "{:,.0f}"}
+  d_frames: {file: results/derived/readme_data.json, path: "runs.key=dungeon.frames"}
+  d_tokens: {file: results/derived/readme_data.json, path: "runs.key=dungeon.tokens_m", fmt: "{:.1f}", unit: " M"}
+  d_pos: {file: results/derived/readme_data.json, path: "runs.key=dungeon.positions", fmt: "{:,.0f}"}
+  d_min: {file: results/derived/readme_data.json, path: "runs.key=dungeon.minutes", fmt: "{:.0f}", unit: " min"}
+  s_runs: {file: results/derived/readme_data.json, path: "runs.key=scene.kernel_runs", fmt: "{:,.0f}"}
+  s_frames: {file: results/derived/readme_data.json, path: "runs.key=scene.frames"}
+  s_tokens: {file: results/derived/readme_data.json, path: "runs.key=scene.tokens_m", fmt: "{:.1f}", unit: " M"}
+  s_min: {file: results/derived/readme_data.json, path: "runs.key=scene.minutes", fmt: "{:.0f}", unit: " min"}
+  fr_dungeon_runs: {file: results/derived/readme_data.json, path: "free_run.key=dungeon.kernel_runs", fmt: "{:,.0f}"}
+  fr_dungeon_tokens: {file: results/derived/readme_data.json, path: "free_run.key=dungeon.tokens", fmt: "{:,.0f}"}
+  fr_scene_runs: {file: results/derived/readme_data.json, path: "free_run.key=scene.kernel_runs", fmt: "{:,.0f}"}
+  fr_scene_tokens: {file: results/derived/readme_data.json, path: "free_run.key=scene.tokens", fmt: "{:,.0f}"}
+
+intro_file: docs/readme/00-intro.md
+
+video:
+  url: ""
+  caption: "Explainer video (voice-over and subtitles): a GL-style API whose every pixel is a token Qwen3.5 emitted"
+  mp4: video/qwengl_explainer.mp4
+  gif: video/preview.gif
+  srt: video/qwengl_explainer.srt
+  poster: video/poster.png
+  out_dir: video/.render
+  fps: 24
+  max_mb: 22
+  render_crf: 20
+  concurrency: 4
+  poster_at: 60
+  music: true
+  voice: {engine: openai, voice: alloy, model: gpt-4o-mini-tts, tempo: 1.2}
+  scenes:
+    - type: title
+      title: qwengl
+      subtitle: A GL-style graphics library inside a language model
+      chips: [glDrawElements, ReLU rasteriser, depth buffer, Qwen3.5-0.8B]
+      say: "qwengl. A GL style graphics library that runs inside a language model. No shaders, no rasteriser code. The model's own tokens are the pixels."
+    - type: problem
+      heading: The idea
+      bullets:
+        - "qwenTPU compiles a tiny integer array into Qwen3.5's weights"
+        - "Each stage is a 5-bit network: y = clip(relu(x W + b), 0, 31)"
+        - "Can a whole graphics pipeline be built from those stages?"
+      say: "The qwenTPU project compiles a tiny integer compute array into the weights of Qwen three point five. Every stage is a five bit network: a matrix multiply, a relu, and a clip. We wrote the layer above it: a compiler from a GL style API into programs for that chip. The weights ride in the prompt, the model emits every output token, and the next stage reads those tokens."
+    - type: code
+      heading: "The API"
+      code: |
+        gl = GL(QwenBackend(...))      # every kernel runs inside Qwen3.5
+        gl.light((-1, -1, -2))         # glLight
+        gl.clear()                     # glClear(COLOR | DEPTH)
+        gl.draw_elements(cube(), rot_matrix(.5, .9, .2))
+        gl.draw_elements(octahedron(1), rot, translate=(8, 0, -4))
+        image = gl.read_pixels()       # colour indices
+        depth = gl.read_depth()
+      say: "The API looks like GL. Set a light, clear the color and depth buffers, draw triangle meshes with a rotation and a translation, and read back the pixels and the depth buffer. Swap the numpy backend for the Qwen backend, and every kernel runs inside the model."
+    - type: architecture
+      diagram: flow
+      heading: "The pipeline"
+      say: "A draw call becomes a schedule of small kernels. Vertices are transformed, edge functions are evaluated without a multiplier, coverage is a hard threshold, the depth test is four relu layers, and flat shading gives five brightness levels in six hues. The framebuffer and depth buffer are tokens that the host holds between kernels, and every value in them was produced by the model."
+    - type: stat
+      number: mismatches
+      kicker: "mismatches between the model's tokens and the integer oracle"
+      label: "across {{ n.frames.text }} frames"
+      sub: "{{ n.tokens_m.text }} tokens through Qwen3.5-0.8B on an A100"
+      say: "The result. Across three scenes and {{ n.frames.numtext }} frames, with {{ n.tokens_m.numtext }} tokens through Qwen three point five zero point eight B on an A100, the model's argmax matched the integer oracle {{ n.mismatches.numtext }} mismatches. Every frame is identical to the numpy pipeline, in color and in depth."
+    - type: chart
+      chart: scene_tokens
+      say: "The dungeon is the largest run: sixty by sixty pixels, seven draw calls per frame, forty eight frames. That is {{ n.d_runs.numtext }} kernel runs and {{ n.d_tokens.numtext }} tokens, in about {{ n.d_min.numtext }} of A100 time."
+    - type: chart
+      chart: dungeon_frame_s
+      say: "Frame zero is the slowest because the static room has to be computed once. After that it is cached, and each frame only recomputes what moved."
+    - type: results
+      heading: "Free-running generation"
+      items:
+        - {label: "dungeon frame: kernel runs", number: fr_dungeon_runs}
+        - {label: "dungeon frame: tokens", number: fr_dungeon_tokens}
+        - {label: "scene frame: kernel runs", number: fr_scene_runs}
+        - {label: "frames identical to numpy", number: free_ok}
+        - {label: "mismatches", number: mismatches}
+      say: "The big runs are teacher forced, so one frame of each scene was also run free running, where the host only does argmax and append. The dungeon frame took {{ n.fr_dungeon_runs.numtext }} kernel runs and {{ n.fr_dungeon_tokens.numtext }} tokens, and all {{ n.free_ok.numtext }} free running frames were identical to numpy, with zero mismatches."
+    - type: caveats
+      heading: "What is not in the model"
+      bullets:
+        - "Uniforms, binning and data movement between kernels are on the host"
+        - "Orthographic only; depth is flat per triangle; flat Lambert shading"
+        - "Clipping is a guard band: oversized triangles are dropped"
+        - "Large runs are teacher-forced; one frame per scene ran free-running"
+      say: "Now what is not in the model. The host computes the per draw uniforms, bins triangles and moves data between kernels. The projection is orthographic, depth is flat per triangle, shading is flat, and oversized triangles are dropped rather than clipped. And the long runs are teacher forced, with one frame of each scene run free running to close the gap."
+    - type: end
+      title: qwengl
+      subtitle: "Code, logs and animations are in the repo"
+      say: "The code, the run logs and every animation are in the repo."
+
+charts:
+  - id: scene_tokens
+    type: bar
+    title: "Tokens through Qwen3.5-0.8B per scene (millions), all with 0 mismatches"
+    better: higher
+    file: results/derived/readme_data.json
+    rows_path: runs
+    label: scene
+    y: tokens_m
+    fmt: "{:.1f}"
+    unit: " M"
+  - id: dungeon_frame_s
+    type: line
+    title: "Dungeon: model time per frame (s)"
+    xlabel: frame
+    ylabel: seconds
+    better: lower
+    file: results/derived/readme_data.json
+    rows_path: dungeon_frames
+    x: frame
+    y: seconds
+  - id: runs_min
+    type: bar
+    title: "A100 wall time per scene (minutes)"
+    better: lower
+    file: results/derived/readme_data.json
+    rows_path: runs
+    label: scene
+    y: minutes
+    fmt: "{:.1f}"
+    unit: " min"
+
+tables:
+  - id: runs_tbl
+    title: "Qwen3.5-0.8B on an A100: full scene runs (teacher-forced, argmax compared at every position)"
+    file: results/derived/readme_data.json
+    rows_path: runs
+    columns:
+      - {key: scene, title: Scene}
+      - {key: frames, title: Frames, align: right}
+      - {key: kernel_runs, title: "Kernel runs", align: right, fmt: "{:,.0f}"}
+      - {key: tokens, title: Tokens, align: right, fmt: "{:,.0f}"}
+      - {key: positions, title: "Predicted positions", align: right, fmt: "{:,.0f}"}
+      - {key: mismatches, title: Mismatches, align: right}
+      - {key: minutes, title: "Minutes", align: right, fmt: "{:.1f}"}
+  - id: free_tbl
+    title: "One frame per scene, free-running (host does only argmax; append)"
+    file: results/derived/readme_data.json
+    rows_path: free_run
+    columns:
+      - {key: scene, title: Scene}
+      - {key: frame, title: Frame, align: right}
+      - {key: kernel_runs, title: "Kernel runs", align: right, fmt: "{:,.0f}"}
+      - {key: unique_runs, title: Unique, align: right, fmt: "{:,.0f}"}
+      - {key: tokens, title: Tokens, align: right, fmt: "{:,.0f}"}
+      - {key: mismatches, title: Mismatches, align: right}
+      - {key: identical, title: "Identical to numpy", align: right}
+      - {key: seconds, title: "Seconds", align: right, fmt: "{:,.0f}"}
+
+diagrams:
+  - id: flow
+    title: "One draw call through the qwengl pipeline"
+    nodes:
+      - {id: api, label: "GL-style API", sub: "light, clear, draw_elements", col: 0, row: 0, kind: io}
+      - {id: host, label: "Host", sub: "uniforms, binning, guard band", col: 1, row: 0}
+      - {id: vx, label: "Vertex + edge functions", sub: "integer ReLU layers", col: 2, row: 0, kind: accent}
+      - {id: cov, label: "Coverage", sub: "hard threshold, both windings", col: 3, row: 0, kind: accent}
+      - {id: z, label: "Depth test", sub: "four ReLU layers", col: 3, row: 1, kind: accent}
+      - {id: sh, label: "Flat shading", sub: "5 levels x 6 hues", col: 2, row: 1, kind: accent}
+      - {id: fb, label: "Framebuffer + depth", sub: "tokens the model emitted", col: 1, row: 1, kind: store}
+      - {id: px, label: "read_pixels", sub: "identical to numpy", col: 0, row: 1, kind: io}
+    edges:
+      - {from: api, to: host}
+      - {from: host, to: vx, label: qwenTPU programs}
+      - {from: vx, to: cov}
+      - {from: cov, to: z}
+      - {from: z, to: sh}
+      - {from: sh, to: fb}
+      - {from: fb, to: px}
+
+sections:
+  - title: Results at a glance
+    emoji: "📊"
+    id: results-at-a-glance
+    body: "Measured on Qwen3.5-0.8B (A100), from the committed per-frame logs in `results/`."
+    highlights:
+      - {label: "Mismatches", number: mismatches}
+      - {label: "Frames", number: frames}
+      - {label: "Tokens through the model", number: tokens_m}
+      - {label: "Kernel runs", number: kernel_runs_total}
+    diagrams: [flow]
+    charts: [scene_tokens, dungeon_frame_s, runs_min]
+    images:
+      - {src: video/preview.gif, alt: "animated overview of the explainer video", width: "70%"}
+    tables: [runs_tbl, free_tbl]
+  - {title: "The API", emoji: "🧑‍💻", body_file: docs/readme/01-the-api.md}
+  - {title: "Architecture", emoji: "🏗️", body_file: docs/readme/02-architecture.md}
+  - {title: "How a frame is drawn", emoji: "🖼️", body_file: docs/readme/03-how-a-frame-is-drawn.md}
+  - {title: "Life of a pixel", emoji: "🔬", body_file: docs/readme/04-life-of-a-pixel.md}
+  - {title: "Measured", emoji: "📊", body_file: docs/readme/05-measured.md}
+  - {title: "What is not in the model", emoji: "⚠️", body_file: docs/readme/06-what-is-not-in-the-model.md}
+  - {title: "Run it", emoji: "🚀", body_file: docs/readme/07-run-it.md}
+  - {title: "Layout", emoji: "🧰", body_file: docs/readme/08-layout.md}
+  - {title: "Credits", emoji: "🙏", body_file: docs/readme/09-credits.md}
+footer: "Generated with video-readme-maker from README.spec.yml and results/."

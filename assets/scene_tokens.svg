@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 278" width="980" height="278" role="img" aria-label="Tokens through Qwen3.5-0.8B per scene (millions), all with 0 mismatches">
+<rect width="980" height="278" rx="16" fill="#0b0f17"/>
+<text x="32" y="44" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-weight="700" font-size="22" fill="#e6edf6">Tokens through Qwen3.5-0.8B per scene (millions), all with 0 mismatches</text>
+<text x="324" y="118" text-anchor="end" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" fill="#8a98ad" font-weight="400">Cube, 30x30</text>
+<rect x="338" y="96" width="181.9" height="30" rx="6" fill="#263044"/>
+<text x="529.9" y="117" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="15" font-weight="700" fill="#e6edf6">31.2 M</text>
+<text x="324" y="164" text-anchor="end" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" fill="#8a98ad" font-weight="400">Cube + octahedron + pyramid, 30x30</text>
+<rect x="338" y="142" width="226.0" height="30" rx="6" fill="#263044"/>
+<text x="574.0" y="163" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="15" font-weight="700" fill="#e6edf6">38.8 M</text>
+<text x="324" y="210" text-anchor="end" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" fill="#8a98ad" font-weight="400">Dungeon, 60x60</text>
+<rect x="338" y="188" width="492.0" height="30" rx="6" fill="#263044"/>
+<text x="840.0" y="209" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="15" font-weight="700" fill="#e6edf6">84.4 M</text>
+<text x="948" y="264" text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" fill="#8a98ad">source: results/derived/readme_data.json · higher is better</text>
+</svg>

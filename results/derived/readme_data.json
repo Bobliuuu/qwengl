@@ -1,0 +1,379 @@
+{
+ "runs": [
+  {
+   "key": "cube",
+   "scene": "Cube, 30x30",
+   "frames": 36,
+   "kernel_runs": 104940,
+   "tokens_m": 31.22,
+   "tokens": 31223296,
+   "positions": 1809896,
+   "mismatches": 0,
+   "dropped": 0,
+   "seconds": 812.3,
+   "minutes": 13.5
+  },
+  {
+   "key": "scene",
+   "scene": "Cube + octahedron + pyramid, 30x30",
+   "frames": 36,
+   "kernel_runs": 98432,
+   "tokens_m": 38.78,
+   "tokens": 38775104,
+   "positions": 2242564,
+   "mismatches": 0,
+   "dropped": 0,
+   "seconds": 1014.6,
+   "minutes": 16.9
+  },
+  {
+   "key": "dungeon",
+   "scene": "Dungeon, 60x60",
+   "frames": 48,
+   "kernel_runs": 812548,
+   "tokens_m": 84.44,
+   "tokens": 84439008,
+   "positions": 4867743,
+   "mismatches": 0,
+   "dropped": 0,
+   "seconds": 2244.7,
+   "minutes": 37.4
+  }
+ ],
+ "free_run": [
+  {
+   "key": "cube",
+   "scene": "Cube, 30x30",
+   "frame": null,
+   "kernel_runs": 2005,
+   "unique_runs": 875,
+   "tokens": 980747,
+   "positions": 56747,
+   "mismatches": 0,
+   "identical": true,
+   "seconds": 122.7
+  },
+  {
+   "key": "scene",
+   "scene": "Cube + octahedron + pyramid, 30x30",
+   "frame": 5,
+   "kernel_runs": 2823,
+   "unique_runs": 1293,
+   "tokens": 1449133,
+   "positions": 83725,
+   "mismatches": 0,
+   "identical": true,
+   "seconds": 218.7
+  },
+  {
+   "key": "dungeon",
+   "scene": "Dungeon, 60x60",
+   "frame": 12,
+   "kernel_runs": 17217,
+   "unique_runs": 7350,
+   "tokens": 8235862,
+   "positions": 474262,
+   "mismatches": 0,
+   "identical": true,
+   "seconds": 1510.6
+  }
+ ],
+ "dungeon_frames": [
+  {
+   "frame": 0,
+   "seconds": 219.11,
+   "tokens_m": 8.288,
+   "kernel_runs": 17217
+  },
+  {
+   "frame": 1,
+   "seconds": 54.99,
+   "tokens_m": 2.086,
+   "kernel_runs": 16862
+  },
+  {
+   "frame": 2,
+   "seconds": 47.25,
+   "tokens_m": 1.779,
+   "kernel_runs": 16445
+  },
+  {
+   "frame": 3,
+   "seconds": 57.03,
+   "tokens_m": 2.172,
+   "kernel_runs": 17241
+  },
+  {
+   "frame": 4,
+   "seconds": 54.9,
+   "tokens_m": 2.073,
+   "kernel_runs": 16985
+  },
+  {
+   "frame": 5,
+   "seconds": 45.14,
+   "tokens_m": 1.685,
+   "kernel_runs": 16778
+  },
+  {
+   "frame": 6,
+   "seconds": 51.14,
+   "tokens_m": 1.94,
+   "kernel_runs": 17013
+  },
+  {
+   "frame": 7,
+   "seconds": 51.17,
+   "tokens_m": 1.936,
+   "kernel_runs": 16781
+  },
+  {
+   "frame": 8,
+   "seconds": 50.7,
+   "tokens_m": 1.913,
+   "kernel_runs": 17081
+  },
+  {
+   "frame": 9,
+   "seconds": 52.04,
+   "tokens_m": 1.974,
+   "kernel_runs": 17013
+  },
+  {
+   "frame": 10,
+   "seconds": 50.13,
+   "tokens_m": 1.902,
+   "kernel_runs": 16751
+  },
+  {
+   "frame": 11,
+   "seconds": 40.8,
+   "tokens_m": 1.529,
+   "kernel_runs": 16853
+  },
+  {
+   "frame": 12,
+   "seconds": 46.02,
+   "tokens_m": 1.74,
+   "kernel_runs": 17217
+  },
+  {
+   "frame": 13,
+   "seconds": 53.17,
+   "tokens_m": 2.012,
+   "kernel_runs": 16880
+  },
+  {
+   "frame": 14,
+   "seconds": 48.1,
+   "tokens_m": 1.813,
+   "kernel_runs": 16856
+  },
+  {
+   "frame": 15,
+   "seconds": 54.38,
+   "tokens_m": 2.057,
+   "kernel_runs": 16992
+  },
+  {
+   "frame": 16,
+   "seconds": 56.91,
+   "tokens_m": 2.154,
+   "kernel_runs": 17084
+  },
+  {
+   "frame": 17,
+   "seconds": 42.47,
+   "tokens_m": 1.583,
+   "kernel_runs": 16880
+  },
+  {
+   "frame": 18,
+   "seconds": 55.26,
+   "tokens_m": 2.08,
+   "kernel_runs": 17082
+  },
+  {
+   "frame": 19,
+   "seconds": 50.97,
+   "tokens_m": 1.916,
+   "kernel_runs": 16778
+  },
+  {
+   "frame": 20,
+   "seconds": 49.96,
+   "tokens_m": 1.886,
+   "kernel_runs": 16865
+  },
+  {
+   "frame": 21,
+   "seconds": 57.37,
+   "tokens_m": 2.161,
+   "kernel_runs": 17310
+  },
+  {
+   "frame": 22,
+   "seconds": 43.98,
+   "tokens_m": 1.659,
+   "kernel_runs": 16451
+  },
+  {
+   "frame": 23,
+   "seconds": 43.13,
+   "tokens_m": 1.62,
+   "kernel_runs": 16844
+  },
+  {
+   "frame": 24,
+   "seconds": 23.45,
+   "tokens_m": 0.869,
+   "kernel_runs": 17220
+  },
+  {
+   "frame": 25,
+   "seconds": 37.54,
+   "tokens_m": 1.404,
+   "kernel_runs": 16778
+  },
+  {
+   "frame": 26,
+   "seconds": 37.93,
+   "tokens_m": 1.415,
+   "kernel_runs": 16853
+  },
+  {
+   "frame": 27,
+   "seconds": 39.79,
+   "tokens_m": 1.497,
+   "kernel_runs": 16992
+  },
+  {
+   "frame": 28,
+   "seconds": 43.15,
+   "tokens_m": 1.618,
+   "kernel_runs": 17084
+  },
+  {
+   "frame": 29,
+   "seconds": 31.11,
+   "tokens_m": 1.152,
+   "kernel_runs": 16880
+  },
+  {
+   "frame": 30,
+   "seconds": 34.25,
+   "tokens_m": 1.277,
+   "kernel_runs": 17079
+  },
+  {
+   "frame": 31,
+   "seconds": 37.75,
+   "tokens_m": 1.402,
+   "kernel_runs": 16742
+  },
+  {
+   "frame": 32,
+   "seconds": 39.7,
+   "tokens_m": 1.493,
+   "kernel_runs": 16964
+  },
+  {
+   "frame": 33,
+   "seconds": 41.46,
+   "tokens_m": 1.561,
+   "kernel_runs": 17304
+  },
+  {
+   "frame": 34,
+   "seconds": 33.03,
+   "tokens_m": 1.236,
+   "kernel_runs": 16451
+  },
+  {
+   "frame": 35,
+   "seconds": 36.1,
+   "tokens_m": 1.352,
+   "kernel_runs": 16907
+  },
+  {
+   "frame": 36,
+   "seconds": 20.43,
+   "tokens_m": 0.746,
+   "kernel_runs": 17220
+  },
+  {
+   "frame": 37,
+   "seconds": 38.66,
+   "tokens_m": 1.459,
+   "kernel_runs": 16958
+  },
+  {
+   "frame": 38,
+   "seconds": 32.2,
+   "tokens_m": 1.202,
+   "kernel_runs": 16445
+  },
+  {
+   "frame": 39,
+   "seconds": 44.29,
+   "tokens_m": 1.674,
+   "kernel_runs": 17250
+  },
+  {
+   "frame": 40,
+   "seconds": 38.57,
+   "tokens_m": 1.445,
+   "kernel_runs": 16922
+  },
+  {
+   "frame": 41,
+   "seconds": 31.47,
+   "tokens_m": 1.169,
+   "kernel_runs": 16778
+  },
+  {
+   "frame": 42,
+   "seconds": 32.99,
+   "tokens_m": 1.233,
+   "kernel_runs": 17016
+  },
+  {
+   "frame": 43,
+   "seconds": 41.08,
+   "tokens_m": 1.547,
+   "kernel_runs": 16778
+  },
+  {
+   "frame": 44,
+   "seconds": 42.54,
+   "tokens_m": 1.611,
+   "kernel_runs": 17084
+  },
+  {
+   "frame": 45,
+   "seconds": 39.31,
+   "tokens_m": 1.459,
+   "kernel_runs": 17016
+  },
+  {
+   "frame": 46,
+   "seconds": 37.37,
+   "tokens_m": 1.401,
+   "kernel_runs": 16751
+  },
+  {
+   "frame": 47,
+   "seconds": 34.44,
+   "tokens_m": 1.262,
+   "kernel_runs": 16817
+  }
+ ],
+ "totals": {
+  "frames": 120,
+  "mismatches": 0,
+  "tokens_m": 154.4,
+  "positions": 8920203,
+  "kernel_runs": 1015920,
+  "free_frames_identical": 3
+ }
+}

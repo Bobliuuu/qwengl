@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 460" width="980" height="460" role="img" aria-label="Dungeon: model time per frame (s)">
+<rect width="980" height="460" rx="16" fill="#0b0f17"/>
+<text x="32" y="44" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-weight="700" font-size="22" fill="#e6edf6">Dungeon: model time per frame (s)</text>
+<line x1="80" x2="940" y1="380" y2="380" stroke="#263044" stroke-width="1"/>
+<text x="70" y="384" text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" fill="#8a98ad">0</text>
+<text x="80" y="400" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" fill="#8a98ad">0</text>
+<line x1="80" x2="940" y1="309" y2="309" stroke="#263044" stroke-width="1"/>
+<text x="70" y="313" text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" fill="#8a98ad">57.52</text>
+<text x="295" y="400" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" fill="#8a98ad">11.75</text>
+<line x1="80" x2="940" y1="238" y2="238" stroke="#263044" stroke-width="1"/>
+<text x="70" y="242" text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" fill="#8a98ad">115</text>
+<text x="510" y="400" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" fill="#8a98ad">23.5</text>
+<line x1="80" x2="940" y1="167" y2="167" stroke="#263044" stroke-width="1"/>
+<text x="70" y="171" text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" fill="#8a98ad">172.5</text>
+<text x="725" y="400" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" fill="#8a98ad">35.25</text>
+<line x1="80" x2="940" y1="96" y2="96" stroke="#263044" stroke-width="1"/>
+<text x="70" y="100" text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" fill="#8a98ad">230.1</text>
+<text x="940" y="400" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" fill="#8a98ad">47</text>
+<text x="510.0" y="424" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="13" fill="#8a98ad">frame</text>
+<text x="14" y="238.0" transform="rotate(-90 14 238.0)" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="13" fill="#8a98ad">seconds</text>
+<polyline points="80.0,109.5 98.3,312.1 116.6,321.7 134.9,309.6 153.2,312.2 171.5,324.3 189.8,316.9 208.1,316.8 226.4,317.4 244.7,315.8 263.0,318.1 281.3,329.6 299.6,323.2 317.9,314.4 336.2,320.6 354.5,312.9 372.8,309.7 391.1,327.6 409.4,311.8 427.7,317.1 446.0,318.3 464.3,309.2 482.6,325.7 500.9,326.8 519.1,351.1 537.4,333.7 555.7,333.2 574.0,330.9 592.3,326.7 610.6,341.6 628.9,337.7 647.2,333.4 665.5,331.0 683.8,328.8 702.1,339.2 720.4,335.4 738.7,354.8 757.0,332.3 775.3,340.3 793.6,325.3 811.9,332.4 830.2,341.2 848.5,339.3 866.8,329.3 885.1,327.5 903.4,331.5 921.7,333.9 940.0,337.5" fill="none" stroke="#27c8e8" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="948" y="446" text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" fill="#8a98ad">source: results/derived/readme_data.json · lower is better</text>
+</svg>

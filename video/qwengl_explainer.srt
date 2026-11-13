@@ -1,0 +1,160 @@
+1
+00:00:00,400 --> 00:00:00,916
+qwengl.
+
+2
+00:00:00,916 --> 00:00:05,483
+A GL style graphics library that runs inside a language model.
+
+3
+00:00:05,483 --> 00:00:07,767
+No shaders, no rasteriser code.
+
+4
+00:00:07,767 --> 00:00:10,567
+The model's own tokens are the pixels.
+
+5
+00:00:11,570 --> 00:00:17,126
+The qwenTPU project compiles a tiny integer compute array into the weights of Qwen three point
+
+6
+00:00:17,126 --> 00:00:17,421
+five.
+
+7
+00:00:17,421 --> 00:00:21,736
+Every stage is a five bit network: a matrix multiply, a relu, and a clip.
+
+8
+00:00:21,736 --> 00:00:26,937
+We wrote the layer above it: a compiler from a GL style API into programs for that chip.
+
+9
+00:00:26,937 --> 00:00:32,375
+The weights ride in the prompt, the model emits every output token, and the next stage reads
+
+10
+00:00:32,375 --> 00:00:33,143
+those tokens.
+
+11
+00:00:34,140 --> 00:00:35,405
+The API looks like GL.
+
+12
+00:00:35,405 --> 00:00:40,579
+Set a light, clear the color and depth buffers, draw triangle meshes with a rotation and a
+
+13
+00:00:40,579 --> 00:00:43,971
+translation, and read back the pixels and the depth buffer.
+
+14
+00:00:43,971 --> 00:00:48,800
+Swap the numpy backend for the Qwen backend, and every kernel runs inside the model.
+
+15
+00:00:49,800 --> 00:00:52,480
+A draw call becomes a schedule of small kernels.
+
+16
+00:00:52,480 --> 00:00:57,784
+Vertices are transformed, edge functions are evaluated without a multiplier, coverage is a hard
+
+17
+00:00:57,784 --> 00:01:03,087
+threshold, the depth test is four relu layers, and flat shading gives five brightness levels in
+
+18
+00:01:03,087 --> 00:01:03,590
+six hues.
+
+19
+00:01:03,590 --> 00:01:08,614
+The framebuffer and depth buffer are tokens that the host holds between kernels, and every
+
+20
+00:01:08,614 --> 00:01:10,847
+value in them was produced by the model.
+
+21
+00:01:11,850 --> 00:01:12,537
+The result.
+
+22
+00:01:12,537 --> 00:01:18,406
+Across three scenes and 120 frames, with 154.4 tokens through Qwen three point five zero point
+
+23
+00:01:18,406 --> 00:01:23,338
+eight B on an A100, the model's argmax matched the integer oracle 0 mismatches.
+
+24
+00:01:23,338 --> 00:01:27,708
+Every frame is identical to the numpy pipeline, in color and in depth.
+
+25
+00:01:28,710 --> 00:01:36,218
+The dungeon is the largest run: sixty by sixty pixels, seven draw calls per frame, forty eight
+
+26
+00:01:36,218 --> 00:01:36,777
+frames.
+
+27
+00:01:36,777 --> 00:01:42,368
+That is 812,548 kernel runs and 84.4 tokens, in about 37 of A100 time.
+
+28
+00:01:43,370 --> 00:01:47,919
+Frame zero is the slowest because the static room has to be computed once.
+
+29
+00:01:47,919 --> 00:01:52,038
+After that it is cached, and each frame only recomputes what moved.
+
+30
+00:01:53,040 --> 00:01:59,427
+The big runs are teacher forced, so one frame of each scene was also run free running, where
+
+31
+00:01:59,427 --> 00:02:01,995
+the host only does argmax and append.
+
+32
+00:02:01,995 --> 00:02:08,451
+The dungeon frame took 17,217 kernel runs and 8,235,862 tokens, and all 3 free running frames
+
+33
+00:02:08,451 --> 00:02:11,645
+were identical to numpy, with zero mismatches.
+
+34
+00:02:12,640 --> 00:02:14,157
+Now what is not in the model.
+
+35
+00:02:14,157 --> 00:02:18,708
+The host computes the per draw uniforms, bins triangles and moves data between kernels.
+
+36
+00:02:18,708 --> 00:02:23,416
+The projection is orthographic, depth is flat per triangle, shading is flat, and oversized
+
+37
+00:02:23,416 --> 00:02:25,613
+triangles are dropped rather than clipped.
+
+38
+00:02:25,613 --> 00:02:30,426
+And the long runs are teacher forced, with one frame of each scene run free running to close
+
+39
+00:02:30,426 --> 00:02:30,844
+the gap.
+
+40
+00:02:31,840 --> 00:02:35,866
+The code, the run logs and every animation are in the repo.
+
